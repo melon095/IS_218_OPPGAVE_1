@@ -75,13 +75,10 @@ map.on("load", async () => {
 		const marker = new maplibregl.Marker()
 			.setLngLat([coordinates[0], coordinates[1]])
 			.setPopup(
-				new maplibregl.Popup({ offset: 25 }) // add popups
-					.setHTML(
-						`<h3>${plass.navn}</h3>
-                        <p>${plass.beskrivelse}</p>
-                        <p><strong>Kommentar:</strong> ${kommentar || "Ingen"}</p>
+				new maplibregl.Popup({ offset: 25 }).setHTML(
+					`<p><strong>Kommentar:</strong> ${kommentar || "Ingen"}</p>
                         <p><strong>Forbedringsforslag:</strong> ${forbedringsforslag || "Ingen"}</p>`,
-					),
+				),
 			);
 
 		marker.addTo(map);
