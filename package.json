@@ -1,0 +1,5 @@
+{
+	"devDependencies": {
+		"maplibre-gl": "^5.16.0"
+	}
+}
