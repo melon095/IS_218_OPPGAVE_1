@@ -32,12 +32,20 @@ const API_KEY = "sb_publishable_9LEtlqVfUwFwsO9DBAmDGQ_MPxw5P1T",
 	BASE_URL = "https://bibmvakzltmfrjjelnyx.supabase.co/rest/v1/",
 	SCHEMA = "tilgjengelighet",
 	TABLE = "friluftfiskeplassbrygge",
-	FRILUFTFISKEPLASSBRYGGE_SOURCE_ID = "friluftfiskeplassbrygge-source",
-	FRILUFTFISKEPLASSBRYGGE_LAYER_ID = "friluftfiskeplassbrygge-layer",
-	FRILUFTSBÅLPLASSER_SOURCE_ID = "friluftsbålplasser-source",
-	FRILUFTSBÅLPLASSER_LAYER_ID = "friluftsbålplasser-layer";
+	friluftfiske = {
+		source: "friluftfiskeplassbrygge",
+		layer: "friluftfiskeplassbrygge",
+		farge: "#1f78b4",
+	},
+	friluftbålplass = {
+		source: "friluftsbålplasser",
+		layer: "friluftsbålplasser",
+		farge: "#33a02c",
+	};
 
-const $menu = document.getElementById("menu");
+const $menu = document.getElementById("menu"),
+	$menu$layers = $menu.querySelector("#layers"),
+	$menu$filtering = $menu.querySelector("#filtering");
 
 // https://epsg.io/25833.proj4js
 proj4.defs(
@@ -102,7 +110,7 @@ const lastInnDataFraSupabase = async () => {
 			features.push(geojson);
 		});
 
-		map.addSource(FRILUFTFISKEPLASSBRYGGE_SOURCE_ID, {
+		map.addSource(friluftfiske.source, {
 			type: "geojson",
 			data: {
 				type: "FeatureCollection",
@@ -111,12 +119,12 @@ const lastInnDataFraSupabase = async () => {
 		});
 
 		map.addLayer({
-			id: FRILUFTFISKEPLASSBRYGGE_LAYER_ID,
-			source: FRILUFTFISKEPLASSBRYGGE_SOURCE_ID,
+			id: friluftfiske.layer,
+			source: friluftfiske.source,
 			type: "circle",
 			paint: {
 				"circle-radius": 6,
-				"circle-color": "#007cbf",
+				"circle-color": friluftfiske.farge,
 				"circle-stroke-width": 2,
 				"circle-stroke-color": "#ffffff",
 			},
@@ -132,18 +140,18 @@ const lastInnDataFraGeoJSON = async () => {
 			res.json(),
 		);
 
-		const source = map.addSource(FRILUFTSBÅLPLASSER_SOURCE_ID, {
+		map.addSource(friluftbålplass.source, {
 			type: "geojson",
 			data: geojson,
 		});
 
 		map.addLayer({
-			id: FRILUFTSBÅLPLASSER_LAYER_ID,
-			source: FRILUFTSBÅLPLASSER_SOURCE_ID,
+			id: friluftbålplass.layer,
+			source: friluftbålplass.source,
 			type: "circle",
 			paint: {
 				"circle-radius": 6,
-				"circle-color": "#ff7f0e",
+				"circle-color": friluftbålplass.farge,
 				"circle-stroke-width": 2,
 				"circle-stroke-color": "#ffffff",
 			},
@@ -153,12 +161,9 @@ const lastInnDataFraGeoJSON = async () => {
 	}
 };
 
-map.on("load", async () => {
-	await lastInnDataFraSupabase();
-	await lastInnDataFraGeoJSON();
-
+const installereEventer = () => {
 	// https://maplibre.org/maplibre-gl-js/docs/examples/display-a-popup-on-click/
-	map.on("click", FRILUFTFISKEPLASSBRYGGE_LAYER_ID, (e) => {
+	map.on("click", friluftfiske.layer, (e) => {
 		const coordinates = e.features[0].geometry.coordinates.slice();
 		const { kommentar, forbedringsforslag, bildefil1, bildefil2 } =
 			e.features[0].properties;
@@ -176,15 +181,15 @@ map.on("load", async () => {
 		new maplibregl.Popup().setLngLat(coordinates).setHTML(html).addTo(map);
 	});
 
-	map.on("mouseenter", FRILUFTFISKEPLASSBRYGGE_LAYER_ID, () => {
+	map.on("mouseenter", friluftfiske.layer, () => {
 		map.getCanvas().style.cursor = "pointer";
 	});
 
-	map.on("mouseleave", FRILUFTFISKEPLASSBRYGGE_LAYER_ID, () => {
+	map.on("mouseleave", friluftfiske.layer, () => {
 		map.getCanvas().style.cursor = "";
 	});
 
-	map.on("click", FRILUFTSBÅLPLASSER_LAYER_ID, (e) => {
+	map.on("click", friluftbålplass.layer, (e) => {
 		const coordinates = e.features[0].geometry.coordinates.slice();
 		const { navn, beskrivelse, bildefil1, bildefil2 } =
 			e.features[0].properties;
@@ -201,11 +206,125 @@ map.on("load", async () => {
 		new maplibregl.Popup().setLngLat(coordinates).setHTML(html).addTo(map);
 	});
 
-	map.on("mouseenter", FRILUFTSBÅLPLASSER_LAYER_ID, () => {
+	map.on("mouseenter", friluftbålplass.layer, () => {
 		map.getCanvas().style.cursor = "pointer";
 	});
 
-	map.on("mouseleave", FRILUFTSBÅLPLASSER_LAYER_ID, () => {
+	map.on("mouseleave", friluftbålplass.layer, () => {
 		map.getCanvas().style.cursor = "";
 	});
+};
+
+const meny = () => {
+	const lagMenyElement = (id, navn, farge, checked = true) => {
+		const container = document.createElement("div");
+		const checkbox = document.createElement("input");
+		checkbox.type = "checkbox";
+		checkbox.id = id;
+		checkbox.checked = checked;
+
+		const label = document.createElement("label");
+		label.htmlFor = id;
+		label.style.color = farge;
+		label.textContent = navn;
+
+		checkbox.addEventListener("change", (e) => {
+			map.setLayoutProperty(
+				id,
+				"visibility",
+				e.target.checked ? "visible" : "none",
+			);
+		});
+
+		container.appendChild(checkbox);
+		container.appendChild(label);
+		return container;
+	};
+
+	$menu$layers.appendChild(
+		lagMenyElement(
+			friluftfiske.layer,
+			"Friluftfiskeplassbrygge",
+			friluftfiske.farge,
+			true,
+		),
+	);
+
+	$menu$layers.appendChild(
+		lagMenyElement(
+			friluftbålplass.layer,
+			"Friluftsbålplasser",
+			friluftbålplass.farge,
+			true,
+		),
+	);
+
+	const $distanceInput = document.getElementById("distance-input"),
+		$distanceSubmit = document.getElementById("distance-submit"),
+		$distanceReset = document.getElementById("distance-reset"),
+		$distanceStats = document.querySelector("#distance-stats #distance-value"),
+		$distanceBålCount = document.querySelector("#distance-stats #bål-count"),
+		$distanceFilteredBålCount = document.querySelector(
+			"#distance-stats #filtered-bål-count",
+		);
+
+	const initialDistance = parseFloat($distanceInput.value);
+	if (initialDistance && initialDistance > 0) {
+		$distanceStats.textContent = initialDistance.toFixed(2);
+	}
+
+	$distanceInput.addEventListener("input", () => {
+		const distance = parseFloat($distanceInput.value);
+		if (distance && distance > 0) {
+			$distanceStats.textContent = distance.toFixed(2);
+		}
+	});
+
+	$distanceSubmit.addEventListener("click", () => {
+		const distance = parseFloat($distanceInput.value);
+		if (!distance || distance <= 0) {
+			alert("Vennligst oppgi en gyldig avstand");
+			return;
+		}
+
+		const fiskeData = map.getSource(friluftfiske.source)._data.geojson.features;
+		const bålData = map.getSource(friluftbålplass.source)._data.geojson
+			.features;
+
+		const buffers = fiskeData.map((feature) =>
+			turf.buffer(feature, distance, { units: "meters" }),
+		);
+
+		const filteredBål = bålData.filter((bålFeature) => {
+			return buffers.some((buffer) => {
+				const point = turf.point(bålFeature.geometry.coordinates);
+				return turf.booleanPointInPolygon(point, buffer);
+			});
+		});
+
+		const filteredGeoJSON = {
+			type: "FeatureCollection",
+			features: filteredBål,
+		};
+
+		map.getSource(friluftbålplass.source).setData(filteredGeoJSON);
+
+		$distanceBålCount.textContent = bålData.length;
+		$distanceFilteredBålCount.textContent = filteredBål.length;
+	});
+
+	$distanceReset.addEventListener("click", async () => {
+		const geojson = await fetch("/friluftsbålplasser.geojson").then((res) =>
+			res.json(),
+		);
+		map.getSource(friluftbålplass.source).setData(geojson);
+		$distanceInput.value = "";
+	});
+};
+
+map.on("load", async () => {
+	await lastInnDataFraSupabase();
+	await lastInnDataFraGeoJSON();
+	installereEventer();
+	meny();
 });

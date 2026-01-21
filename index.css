@@ -36,4 +36,15 @@ body,
 
 	overflow-y: auto;
 	background-color: var(--color-bg);
+	font-size: larger;
+}
+
+div#distance {
+	margin-top: 3rem;
+}
+
+div#distance-stats {
+	margin-top: 1rem;
+	font-size: medium;
+	color: #555;
 }
