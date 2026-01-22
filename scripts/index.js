@@ -136,8 +136,8 @@ const lastInnDataFraSupabase = async () => {
 
 const lastInnDataFraGeoJSON = async () => {
 	try {
-		const geojson = await fetch("/friluftsbålplasser.geojson").then((res) =>
-			res.json(),
+		const geojson = await fetch("/data/friluftsbålplasser.geojson").then(
+			(res) => res.json(),
 		);
 
 		map.addSource(friluftbålplass.source, {
@@ -314,8 +314,8 @@ const meny = () => {
 	});
 
 	$distanceReset.addEventListener("click", async () => {
-		const geojson = await fetch("/friluftsbålplasser.geojson").then((res) =>
-			res.json(),
+		const geojson = await fetch("/data/friluftsbålplasser.geojson").then(
+			(res) => res.json(),
 		);
 		map.getSource(friluftbålplass.source).setData(geojson);
 		$distanceInput.value = "";
