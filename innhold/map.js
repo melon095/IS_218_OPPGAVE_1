@@ -14,8 +14,27 @@ fetch('Dataset/kulturminner_bygninger.geojson')
     .then(data => {
         const geoJsonLayer = L.geoJSON(data, {
             pointToLayer: function (feature, latlng) {
+                const i = feature.properties;
+                if (i. navn === null) {
+                    i.navn = "Bygg uten navn";
+                }
+                if (i.kulturminneKategori === null) {
+                    i.kulturminneKategori = "Ukjent kategori";
+                }
+                if (i.kulturminneDateringEksakt === null) {
+                    i.LkulturminneDateringEksakt = "Ukjent byggeår";
+                }
+                if (i.informasjon === null) {
+                    i.informasjon = "Ingen informasjon er tilgjengelig, beklager for ulempen as...";
+                }
+                const infomatic =
+                    `<strong>${i.navn}</strong><br/>
+                    Kategori: ${i.kulturminneKategori}</br>
+                    Byggeår: ${i.kulturminneDateringEksakt}</br>
+                    <strong>Informasjon:</strong></br>
+                    ${i.informasjon}`;
                 const marker = L.marker(latlng);
-                marker.bindPopup(feature.properties.navn, 'Freda bygning');
+                marker.bindPopup(infomatic);
                 return marker;
             }
         });
