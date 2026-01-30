@@ -1,0 +1,46 @@
+<head>
+    <link rel="stylesheet" href="informatikk.css">
+</head>
+<body>
+    <div id="infotab">
+        <strong>Om denne nettsiden</strong> <br> <a href="index.html">Tilbake</a>
+        <hr>
+        <br>
+        <p>Denne nettsiden viser data om fredet bygninger
+            i Norge gjennom et interaktivt kart.
+            <br>
+            <strong>Funksjonalitet:</strong>
+            <br>
+            Kartet lar bruker zoome inn og ut på pluss og minus
+            tegnene øverst til venstre. Brukeren har også mulighet til
+            å bevege kartet.
+            Kartet er hentet fra leaflet.
+            <br>
+            <strong>Ytelse:</strong>
+            Datasettet inneholder over 10000 markører, normalt vil dette negativt påvirke
+            ytelsen til kartet dersom store mengder markører vises samtidig. For å løse dette problemet valgte gruppen å
+            benytte leaflet sin cluster funksjon. Dette gjør at når kartet blir vist
+            fra avstand vil den grupere markører som er i nærhet av hverandre.
+            Dette gjør at det ikke er nødvendig å rendere flere tusen markører samtidig.
+            Dersom en bruker zoomer lenger inn på kartet, vil klyngene dele seg til mindre grupper,
+            helt til markørene kan vises seperate. Ved å klikke på markører får du opp informasjon om
+            kulturminnets navn, kategori, byggedato og informasjon om bygningen.
+            <br>
+            <strong>Filtrering:</strong>
+            På toppen av vinduet i hovedmenyen har du mulighet å trykke på knapp, som for eksempel "Kulturminner", slik kan
+            du velge å vise, eller skjule markørene. Denne funksjonen kan også gjøres ved å trykke "k". Å ha en tastetrykk 
+            for å kunne skru av og på datasettet gjøre utførelsen lettere.
+            <br>
+            <strong>Kontroll:</strong>
+            <br>
+            K = Kulturminner av/på
+            <br>
+            <hr>
+            <strong>Oppgaven</strong> er laget for emnet IS-218
+            <br>
+            <strong>Datasettet</strong> er hentet fra Geonorge sin åpne data: <a href="https://kartkatalog.geonorge.no/"> Geonorge</a>
+            <br>
+            <strong>Bakgrunnsbildet</strong> er hentet fra <a href="https://commons.wikimedia.org/wiki/File:Stabbur_fra_Telemark_1797.jpg">Wikimedia commons</a>
+        </p>
+    </div>
+</body>

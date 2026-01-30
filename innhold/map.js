@@ -51,3 +51,6 @@ fetch('Dataset/kulturminner_bygninger.geojson')
             map.removeLayer(markerCluster);
         }
     });
+    document.addEventListener("keydown", e => {
+        if (e.key === "k") toggle.click();
+    });
