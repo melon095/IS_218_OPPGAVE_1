@@ -12,7 +12,7 @@ var markerCluster = L.markerClusterGroup();
 fetch('Dataset/kulturminner_bygninger.geojson')
     .then(response => response.json())
     .then(data => {
-        const geoJsonLayer = L.geoJSON(data, {
+        const kulturminnerLayer = L.geoJSON(data, {
             pointToLayer: function (feature, latlng) {
                 const i = feature.properties;
                 if (i. navn === null) {
@@ -39,6 +39,10 @@ fetch('Dataset/kulturminner_bygninger.geojson')
             }
         });
 
-        markerCluster.addLayer(geoJsonLayer);
+        markerCluster.addLayer(kulturminnerLayer);
         map.addLayer(markerCluster);
     });
+
+    L.control.layers(null, {
+        "Kulturminner": markerCluster
+    }).addTo(map);
