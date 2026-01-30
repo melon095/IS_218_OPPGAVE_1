@@ -42,7 +42,12 @@ fetch('Dataset/kulturminner_bygninger.geojson')
         markerCluster.addLayer(kulturminnerLayer);
         map.addLayer(markerCluster);
     });
+    const toggle = document.getElementById('toggleClusters');
 
-    L.control.layers(null, {
-        "Kulturminner": markerCluster
-    }).addTo(map);
+    toggle.addEventListener('change', function() {
+        if (this.checked) {
+            map.addLayer(markerCluster);
+        } else {
+            map.removeLayer(markerCluster);
+        }
+    });
