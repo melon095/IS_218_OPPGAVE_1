@@ -178,7 +178,10 @@ const installereEventer = () => {
 			html += `<br/><img src="${bildefil2}" alt="Bilde 2" style="max-width:200px; max-height:200px;"/>`;
 		}
 
-		new maplibregl.Popup().setLngLat(coordinates).setHTML(html).addTo(map);
+		new maplibregl.Popup({ className: "popup" })
+			.setLngLat(coordinates)
+			.setHTML(html)
+			.addTo(map);
 	});
 
 	map.on("mouseenter", friluftfiske.layer, () => {
@@ -203,7 +206,10 @@ const installereEventer = () => {
 			html += `<br/><img src="${bildefil2}" alt="Bilde 2" style="max-width:200px; max-height:200px;"/>`;
 		}
 
-		new maplibregl.Popup().setLngLat(coordinates).setHTML(html).addTo(map);
+		new maplibregl.Popup({ className: "popup" })
+			.setLngLat(coordinates)
+			.setHTML(html)
+			.addTo(map);
 	});
 
 	map.on("mouseenter", friluftbålplass.layer, () => {
