@@ -8,7 +8,10 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution:
         '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
+// Klynge for markører
 var markerCluster = L.markerClusterGroup();
+
+// Hente datasett fra geojson
 fetch('Dataset/kulturminner_bygninger.geojson')
     .then(response => response.json())
     .then(data => {
