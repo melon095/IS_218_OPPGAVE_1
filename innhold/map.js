@@ -45,15 +45,21 @@ fetch('Dataset/kulturminner_bygninger.geojson')
         markerCluster.addLayer(kulturminnerLayer);
         map.addLayer(markerCluster);
     });
-    const toggle = document.getElementById('toggleClusters');
 
-    toggle.addEventListener('change', function() {
-        if (this.checked) {
-            map.addLayer(markerCluster);
-        } else {
-            map.removeLayer(markerCluster);
-        }
-    });
-    document.addEventListener("keydown", e => {
-        if (e.key === "k") toggle.click();
-    });
+// Skru av og på datasett
+const toggle = document.getElementById('toggleClusters');
+toggle.addEventListener('change', function() {
+    if (this.checked) {
+        map.addLayer(markerCluster);
+    } else {
+        map.removeLayer(markerCluster);
+    }
+});
+document.addEventListener("keydown", e => {
+    if (e.key === "k") toggle.click();
+});
+const audio = document.getElementById('background-audio');
+audio.play();
+// Filtrere basert på avstand UiA
+const centerPoint = L.latLng(58.16346315241287, 8.003540956885693);
+let allFeatures
