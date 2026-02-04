@@ -33,13 +33,16 @@ const CONSTS = {
 	LAYER_COLOR: "#FFC0CB",
 };
 
+let toiletData = null,
+	currentFilter = null;
+
 const lastInnDataFraGeoJSON = async () => {
 	try {
-		const geojson = await fetch(CONSTS.DATASET_PATH).then((res) => res.json());
+		toiletData = await fetch(CONSTS.DATASET_PATH).then((res) => res.json());
 
 		map.addSource(CONSTS.SOURCE, {
 			type: "geojson",
-			data: geojson,
+			data: toiletData,
 			cluster: true,
 		});
 
@@ -127,66 +130,56 @@ const installereEventer = () => {
 
 const meny = async () => {
 	const $menu = document.getElementById("menu"),
-		// $menu$toilets = $menu.querySelector("#toilets ul"),
+		$menu$toilets = $menu.querySelector("#toilets ul"),
 		$filterHandicapLightButton = document.getElementById(
 			"filter-handicap-lighting",
 		),
 		$filterHandicapRampButton = document.getElementById("filter-handicap-ramp"),
 		$resetFiltersButton = document.getElementById("reset-filters");
 
-	/*
-        Maplibre sitt filtrering system suger.
-        Dersom man ønsker å filtrere data og deretter hente ut de filtrerte dataene på nytt,
-        så er det ikke mulig med mindre man lagrer filteret selv og bruker det til å filtrere
-        dataene manuelt. :(
+	const updateToiletList = () => {
+		const features = currentFilter
+			? toiletData.features.filter(currentFilter)
+			: toiletData.features;
 
-        `querySourceFeatures` og `queryRenderedFeatures` er så sporadisk at de henter ikke ut engang
-        riktig data. Noen ganger fungerer det, andre ganger ikke.
-        
-        Clusters gjør det enda verre, fordi disse teller som egne features!
-    */
+		$menu$toilets.innerHTML = "";
 
-	// const updateToiletList = (filter = null) => {
-	// 	const features = map
-	// 		.querySourceFeatures(CONSTS.SOURCE, {
-	// 			sourceLayer: CONSTS.LAYER,
-	// 		})
-	// 		.filter((f) => !f.properties.point_count);
+		features.forEach((feat, idx) => {
+			const li = document.createElement("li");
+			li.textContent = `Toalett ${idx + 1}`;
+			li.dataset.coordinates = JSON.stringify(feat.geometry.coordinates);
+			$menu$toilets.appendChild(li);
+		});
+	};
 
-	// 	console.log({ filter, features });
-	// 	$menu$toilets.innerHTML = "";
-
-	// 	features.forEach((feat, idx) => {
-	// 		const li = document.createElement("li");
-	// 		li.textContent = `Toalett ${idx + 1}`;
-	// 		li.dataset.coordinates = JSON.stringify(feat.geometry.coordinates);
-	// 		$menu$toilets.appendChild(li);
-	// 	});
-	// };
-
-	// $menu$toilets.onclick = (e) => {
-	// 	if (e.target && e.target.nodeName === "LI") {
-	// 		const coordinates = JSON.parse(e.target.dataset.coordinates);
-	// 		map.flyTo({ center: coordinates, zoom: 18 });
-	// 	}
-	// };
+	$menu$toilets.onclick = (e) => {
+		if (e.target && e.target.nodeName === "LI") {
+			const coordinates = JSON.parse(e.target.dataset.coordinates);
+			map.flyTo({ center: coordinates, zoom: 18 });
+		}
+	};
 
 	$filterHandicapLightButton.onclick = () => {
 		const filterExpression = ["==", ["get", "belysningInne"], "Ja"];
+		currentFilter = (feat) => feat.properties.belysningInne === "Ja";
 		map.setFilter(CONSTS.LAYER, filterExpression);
-		// updateToiletList(filterExpression);
+		updateToiletList();
 	};
 
 	$filterHandicapRampButton.onclick = () => {
 		const filterExpression = ["==", ["get", "rampe"], "Ja"];
+		currentFilter = (feat) => feat.properties.rampe === "Ja";
 		map.setFilter(CONSTS.LAYER, filterExpression);
-		// updateToiletList(filterExpression);
+		updateToiletList();
 	};
 
 	$resetFiltersButton.onclick = () => {
+		currentFilter = null;
 		map.setFilter(CONSTS.LAYER, null);
-		// updateToiletList();
+		updateToiletList();
 	};
+
+	updateToiletList();
 };
 
 map.on("load", async () => {
@@ -194,8 +187,12 @@ map.on("load", async () => {
 	installereEventer();
 });
 
+let loadedMeny = false;
 map.on("sourcedata", async (e) => {
+	if (loadedMeny) return;
+
 	if (e.sourceId === CONSTS.SOURCE && e.isSourceLoaded) {
+		loadedMeny = true;
 		await meny();
 	}
 });
