@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="utf-8" />
+  <title>IS-218 – Webkart</title>
+
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="map"></div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+ // 1. Kart + bakgrunn
+const map = L.map("map").setView([58.15, 7.99], 12);
+
+const osm = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom: 19,
+  attribution: "© OpenStreetMap"
+}).addTo(map);
+
+// 2. Base layers (kun bakgrunn foreløpig)
+const baseLayers = {
+  "OpenStreetMap": osm
+};
+
+// 3. Tomt overlay-objekt (viktig!)
+const overlays = {};
+
+// 4. Last GeoJSON
+fetch("data/FTPB.geojson")
+  .then(r => r.json())
+  .then(data => {
+
+    // 1) Lag GeoJSON-laget FØRST
+    const geojsonLayer = L.geoJSON(data, {
+      pointToLayer: (feature, latlng) => {
+        const v = feature.properties.verdi;
+
+        let color = "blue";
+        if (v >= 5) color = "red";
+        else if (v >= 2) color = "orange";
+
+        return L.circleMarker(latlng, {
+          radius: 8,
+          color: color,
+          fillColor: color,
+          fillOpacity: 0.8
+        });
+      },
+      onEachFeature: (feature, layer) => {
+        const p = feature.properties;
+        layer.bindPopup(`
+          <b>Navn:</b> ${p.navn ?? "–"}<br>
+          <b>Type:</b> ${p["type "] ?? "–"}<br>
+          <b>Verdi:</b> ${p.verdi ?? "–"}
+        `);
+      }
+    }).addTo(map);
+
+    // 2) Overlay + layer control
+    overlays["FTP (GeoJSON)"] = geojsonLayer;
+
+    // 3) Zoom til data (valgfritt, men nice)
+    if (geojsonLayer.getBounds().isValid()) {
+      map.fitBounds(geojsonLayer.getBounds(), { padding: [20, 20] });
+    }
+
+    // 4) Romlig spørring: klikk -> vis punkter innenfor radius
+    const radiusMeters = 5000;
+    let queryCircle = null;
+
+    const pointLayers = [];
+    geojsonLayer.eachLayer(layer => pointLayers.push(layer));
+
+    function runSpatialQuery(centerLatLng) {
+      if (queryCircle) map.removeLayer(queryCircle);
+
+      // (interactive:false gjør at sirkelen ikke "stjeler" klikk)
+      queryCircle = L.circle(centerLatLng, {
+        radius: radiusMeters,
+        interactive: false
+      }).addTo(map);
+
+      let hits = 0;
+
+      pointLayers.forEach(layer => {
+        const p = layer.getLatLng();
+        const d = centerLatLng.distanceTo(p);
+        const inside = d <= radiusMeters;
+
+        if (inside) {
+          hits++;
+          if (!map.hasLayer(layer)) layer.addTo(map);
+        } else {
+          if (map.hasLayer(layer)) map.removeLayer(layer);
+        }
+      });
+
+      L.popup()
+        .setLatLng(centerLatLng)
+        .setContent(`<b>Romlig søk</b><br>Radius: ${radiusMeters} m<br>Treff: ${hits}`)
+        .openOn(map);
+    }
+
+    map.on("click", (e) => runSpatialQuery(e.latlng));
+
+    // 5) Reset-knapp (vis alle)
+    const resetBtn = L.control({ position: "topright" });
+    resetBtn.onAdd = () => {
+      const btn = L.DomUtil.create("button", "");
+      btn.textContent = "Vis alle";
+      btn.style.padding = "6px 10px";
+      btn.style.background = "white";
+      btn.style.border = "1px solid #ccc";
+      btn.style.cursor = "pointer";
+
+      L.DomEvent.on(btn, "click", (ev) => {
+        L.DomEvent.stopPropagation(ev);
+        pointLayers.forEach(layer => { if (!map.hasLayer(layer)) layer.addTo(map); });
+        if (queryCircle) { map.removeLayer(queryCircle); queryCircle = null; }
+        map.closePopup();
+      });
+
+      return btn;
+    };
+    resetBtn.addTo(map);
+
+    // 6) Layer control LAGES til slutt (når overlays er fylt)
+    L.control.layers(baseLayers, overlays).addTo(map);
+  });
+
+
+</script>
+
+</body>
+</html>

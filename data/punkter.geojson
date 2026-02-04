@@ -1,0 +1,10 @@
+{
+"type": "FeatureCollection",
+"name": "punkter",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "fid": 1, "navn": "Hei", "type ": "PÅ", "verdi": 1 }, "geometry": { "type": "Point", "coordinates": [ 7.9944, 58.146 ] } },
+{ "type": "Feature", "properties": { "fid": 2, "navn": null, "type ": null, "verdi": null }, "geometry": { "type": "Point", "coordinates": [ 7.990, 58.147 ] } },
+{ "type": "Feature", "properties": { "fid": 3, "navn": null, "type ": null, "verdi": null }, "geometry": { "type": "Point", "coordinates": [ 7.992, 58.148 ] } }
+]
+}
