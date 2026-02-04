@@ -28,15 +28,15 @@ map.on("load", () => {
 
   map.addSource("kirkebygg", {
     type: "geojson",
-    data: "/Datasett/kirkebygg.geojson",
+    data: "Datasett/kirkebygg.geojson",
     cluster: true,
     clusterMaxZoom: 14,
-    clusterRadius: 15,
+    clusterRadius: 40,
   });
 
   map.addSource("brannsmitteområde", {
     type: "geojson",
-    data: "/Datasett/brannsmitteområde.geojson",
+    data: "Datasett/brannsmitteområde.geojson",
   });
 
  
@@ -50,7 +50,7 @@ map.on("load", () => {
   });
 
   
-  map.loadImage("/Oppgave1/assets/Marker.png", (error, image) => {
+  map.loadImage("assets/Marker.png", (error, image) => {
     if (error) throw error;
 
     map.addImage("custom-marker", image);
