@@ -28,7 +28,7 @@
 ## 5.Arkitektur og dataflyt
 
 	- Punktdata er opprettet og redigert i QGIS
-	-Datasettet eksporteres til GeoJSON og reprojiseres til EPSG:4326 (WGS 84) for bruk i webkart
+	- Datasettet eksporteres til GeoJSON og reprojiseres til EPSG:4326 (WGS 84) for bruk i webkart
 	- GeoJSON lastes inn i webapplikasjonen ved hjelp av JavaScript og beskrives som et temalag i kartet
 	- Kartvisningen håndteres av et kartbibliotek i nettleseren
 	- Bakgrunnskart hentes direkte fra Kartverket via en ekstern OGC WMS-tjeneste
