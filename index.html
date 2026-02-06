@@ -15,8 +15,7 @@
                 <button id="toggle-toilets" type="submit" name="layer">Skjul Toaletter (t)</button>
                 <button id="toggle-churches" type="submit" name="layer">Skjul Kirker (k)</button>
                 <button id="toggle-sound" type="submit" name="sound">Demp lyd (m)</button>
-                <audio id="bird-sounds" src="innhold/Sound/birdsounds.mp3" loop>
-                </audio>
+                <audio id="bird-sounds" src="lyder/birdsounds.mp3" loop autoplay></audio>
             </div>
             <div id="toilet-section">
                 <div id="filter-buttons">
@@ -29,18 +28,12 @@
                     </button>
                     <button id="reset-filters" type="submit">Tilbakestill filtre</button>
                 </div>
-                <div id="toilets">
-                    <h2>Toaletter</h2>
-                    <ul></ul>
-                </div>
             </div>
         </aside>
         <main id="map"></main>
     </div>
 
     <script src="https://unpkg.com/maplibre-gl@^5.16.0/dist/maplibre-gl.js"></script>
-    <!-- <script src="https://unpkg.com/@turf/turf@7.3.2/turf.min.js" type="text/javascript"></script> -->
     <script src="./scripts/index.js" type="module"></script>
-    <!-- <script src="./scripts/proj4-src.js" type="text/javascript"></script> -->
 </body>
 </html>
