@@ -213,6 +213,8 @@ const installereEventer = () => {
 };
 
 const meny = async () => {
+	const audio = document.getElementById("bird-sounds");
+	
 	const $menu = document.getElementById("menu"),
         $toiletSection = document.getElementById("toilet-section"),
 		$menu$toilets = $menu.querySelector("#toilets ul"),
@@ -222,7 +224,8 @@ const meny = async () => {
 		$filterHandicapRampButton = document.getElementById("filter-handicap-ramp"),
 		$resetFiltersButton = document.getElementById("reset-filters"),
         $toggleToiletsButton = document.getElementById("toggle-toilets"),
-        $toggleChurchesButton = document.getElementById("toggle-churches");
+        $toggleChurchesButton = document.getElementById("toggle-churches"),
+		$toggleSoundButton = document.getElementById("toggle-sound")
 
 	const updateToiletList = () => {
 		const features = currentFilter
@@ -266,6 +269,19 @@ const meny = async () => {
 		updateToiletList();
 	};
 
+	const onToggleSound = () =>
+	{
+
+		if (audio.paused) {
+			audio.play();
+			$toggleSoundButton.textContent = "Skru av lyd (m)";
+		} else {
+			audio.pause();
+			$toggleSoundButton.textContent = "Skru på lyd (m)";
+		}
+		
+	}
+
     
     const onToggleToilets = () => {
         const visibility = map.getLayoutProperty(CONSTS.TOILET_LAYER, "visibility");
@@ -283,10 +299,10 @@ const meny = async () => {
         );
 
         if (visibility === "visible") {
-            $toggleToiletsButton.textContent = "Vis Toaletter";
+            $toggleToiletsButton.textContent = "Vis Toaletter (t)";
             $toiletSection.classList.add("hidden");
         } else {
-            $toggleToiletsButton.textContent = "Skjul Toaletter";
+            $toggleToiletsButton.textContent = "Skjul Toaletter (t)";
             $toiletSection.classList.remove("hidden");
         }
     }
@@ -307,19 +323,34 @@ const meny = async () => {
         );
 
         if (visibility === "visible") {
-            $toggleChurchesButton.textContent = "Vis Kirker";
+            $toggleChurchesButton.textContent = "Vis Kirker (k)";
         } else {
-            $toggleChurchesButton.textContent = "Skjul Kirker";
+            $toggleChurchesButton.textContent = "Skjul Kirker (k)";
         }
     }
 
     
     $toggleToiletsButton.onclick = onToggleToilets;
     $toggleChurchesButton.onclick = onToggleChurches;
+	$toggleSoundButton.onclick = onToggleSound;
+	
+	window.addEventListener("keydown", (e) => {
+		if (e.key === "m"){
+			onToggleSound();
+		}
+		else if (e.key === "t"){
+			onToggleToilets();
+		}
+		else if (e.key === "k"){
+			onToggleChurches();
+		}
+	});
+
 
 	updateToiletList();
     onToggleToilets();
     onToggleChurches();
+	audio.play();
 };
 
 map.on("load", async () => {
@@ -336,6 +367,3 @@ map.on("sourcedata", async (e) => {
 		await meny();
 	}
 });
-
-const audio = document.getElementById("bird-sounds");
-audio.play();
