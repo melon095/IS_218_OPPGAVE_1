@@ -291,3 +291,7 @@ div#distance-stats span {
 .popup * {
 	background-color: transparent;
 }
+
+.hidden {
+    display: none;
+}

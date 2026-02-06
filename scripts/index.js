@@ -27,10 +27,14 @@ const map = new maplibregl.Map({
 globalThis.map = map;
 
 const CONSTS = {
-	DATASET_PATH: "/dataset/handikapp_toalett.geojson",
-	SOURCE: "handikapp_toalett_source",
-	LAYER: "handikapp_toalett_layer",
-	LAYER_COLOR: "#FFC0CB",
+	TOILET_DATASET_PATH: "/dataset/handikapp_toalett.geojson",
+	TOILET_SOURCE: "handikapp_toalett_source",
+	TOILET_LAYER: "handikapp_toalett_layer",
+	TOILET_LAYER_COLOR: "#FFC0CB",
+    CHURCH_DATASET_PATH: "/dataset/kirker.geojson",
+    CHURCH_SOURCE: "church_source",
+    CHURCH_LAYER: "church_layer",
+    CHURCH_LAYER_COLOR: "#d09206",
 };
 
 let toiletData = null,
@@ -38,17 +42,17 @@ let toiletData = null,
 
 const lastInnDataFraGeoJSON = async () => {
 	try {
-		toiletData = await fetch(CONSTS.DATASET_PATH).then((res) => res.json());
+		toiletData = await fetch(CONSTS.TOILET_DATASET_PATH).then((res) => res.json());
 
-		map.addSource(CONSTS.SOURCE, {
+		map.addSource(CONSTS.TOILET_SOURCE, {
 			type: "geojson",
 			data: toiletData,
 			cluster: true,
 		});
 
 		map.addLayer({
-			id: CONSTS.LAYER,
-			source: CONSTS.SOURCE,
+			id: CONSTS.TOILET_LAYER,
+			source: CONSTS.TOILET_SOURCE,
 			type: "circle",
 			paint: {
 				"circle-radius": 6,
@@ -61,7 +65,7 @@ const lastInnDataFraGeoJSON = async () => {
 		map.addLayer({
 			id: "clusters",
 			type: "circle",
-			source: CONSTS.SOURCE,
+			source: CONSTS.TOILET_SOURCE,
 			filter: ["has", "point_count"],
 			paint: {
 				"circle-color": [
@@ -81,7 +85,7 @@ const lastInnDataFraGeoJSON = async () => {
 		map.addLayer({
 			id: "cluster-count",
 			type: "symbol",
-			source: CONSTS.SOURCE,
+			source: CONSTS.TOILET_SOURCE,
 			filter: ["has", "point_count"],
 			layout: {
 				"text-field": ["get", "point_count"],
@@ -92,6 +96,25 @@ const lastInnDataFraGeoJSON = async () => {
 				"text-color": "#fff",
 			},
 		});
+
+        const churchData = await fetch(CONSTS.CHURCH_DATASET_PATH).then((res) => res.json());
+
+        map.addSource(CONSTS.CHURCH_SOURCE, {
+            type: "geojson",
+            data: churchData,
+        });
+
+        map.addLayer({
+            id: CONSTS.CHURCH_LAYER,
+            source: CONSTS.CHURCH_SOURCE,
+            type: "circle",
+            paint: {
+                "circle-radius": 6,
+                "circle-color": CONSTS.CHURCH_LAYER_COLOR,
+                "circle-stroke-width": 2,
+                "circle-stroke-color": "#ffffff",
+            },
+        });
 	} catch (error) {
 		console.error("Feil under lasting av data fra GeoJSON:", error);
 	}
@@ -99,7 +122,7 @@ const lastInnDataFraGeoJSON = async () => {
 
 const installereEventer = () => {
 	// https://maplibre.org/maplibre-gl-js/docs/examples/display-a-popup-on-click/
-	map.on("click", CONSTS.LAYER, (e) => {
+	map.on("click", CONSTS.TOILET_LAYER, (e) => {
 		const coordinates = e.features[0].geometry.coordinates.slice();
 		const { kommentar, forbedringsforslag, bildefil1, bildefil2, bildefil3 } =
 			e.features[0].properties;
@@ -119,23 +142,50 @@ const installereEventer = () => {
 			.addTo(map);
 	});
 
-	map.on("mouseenter", CONSTS.LAYER, () => {
+	map.on("mouseenter", CONSTS.TOILET_LAYER, () => {
 		map.getCanvas().style.cursor = "pointer";
 	});
 
-	map.on("mouseleave", CONSTS.LAYER, () => {
+	map.on("mouseleave", CONSTS.TOILET_LAYER, () => {
 		map.getCanvas().style.cursor = "";
 	});
+
+    map.on("click", CONSTS.CHURCH_LAYER, (e) => {
+        const coordinates = e.features[0].geometry.coordinates.slice();
+        const { bygningsnavn, adressenavn, postnummer, poststed, kommune, fylke } =
+            e.features[0].properties;
+        
+        const html = `<strong>Bygningsnavn:</strong> ${bygningsnavn || "Ukjent"}<br/>
+                    <strong>Adresse:</strong> ${adressenavn || "Ukjent"}, ${postnummer || "Ukjent"} ${poststed || "Ukjent"}<br/>
+                    <strong>Kommune:</strong> ${kommune || "Ukjent"}<br/>
+                    <strong>Fylke:</strong> ${fylke || "Ukjent"}`;
+
+        new maplibregl.Popup({ className: "popup" })
+            .setLngLat(coordinates)
+            .setHTML(html)
+            .addTo(map);
+    });
+
+    map.on("mouseenter", CONSTS.CHURCH_LAYER, () => {
+        map.getCanvas().style.cursor = "pointer";
+    });
+
+    map.on("mouseleave", CONSTS.CHURCH_LAYER, () => {
+        map.getCanvas().style.cursor = "";
+    });
 };
 
 const meny = async () => {
 	const $menu = document.getElementById("menu"),
+        $toiletSection = document.getElementById("toilet-section"),
 		$menu$toilets = $menu.querySelector("#toilets ul"),
 		$filterHandicapLightButton = document.getElementById(
 			"filter-handicap-lighting",
 		),
 		$filterHandicapRampButton = document.getElementById("filter-handicap-ramp"),
-		$resetFiltersButton = document.getElementById("reset-filters");
+		$resetFiltersButton = document.getElementById("reset-filters"),
+        $toggleToiletsButton = document.getElementById("toggle-toilets"),
+        $toggleChurchesButton = document.getElementById("toggle-churches");
 
 	const updateToiletList = () => {
 		const features = currentFilter
@@ -162,24 +212,70 @@ const meny = async () => {
 	$filterHandicapLightButton.onclick = () => {
 		const filterExpression = ["==", ["get", "belysningInne"], "Ja"];
 		currentFilter = (feat) => feat.properties.belysningInne === "Ja";
-		map.setFilter(CONSTS.LAYER, filterExpression);
+		map.setFilter(CONSTS.TOILET_LAYER, filterExpression);
 		updateToiletList();
 	};
 
 	$filterHandicapRampButton.onclick = () => {
 		const filterExpression = ["==", ["get", "rampe"], "Ja"];
 		currentFilter = (feat) => feat.properties.rampe === "Ja";
-		map.setFilter(CONSTS.LAYER, filterExpression);
+		map.setFilter(CONSTS.TOILET_LAYER, filterExpression);
 		updateToiletList();
 	};
 
 	$resetFiltersButton.onclick = () => {
 		currentFilter = null;
-		map.setFilter(CONSTS.LAYER, null);
+		map.setFilter(CONSTS.TOILET_LAYER, null);
 		updateToiletList();
 	};
 
+    
+    const onToggleToilets = () => {
+        const visibility = map.getLayoutProperty(CONSTS.TOILET_LAYER, "visibility");
+        map.setLayoutProperty(
+            CONSTS.TOILET_LAYER,
+            "visibility",
+            visibility === "visible" ? "none" : "visible"
+        );
+
+        const clustersVisibility = map.getLayoutProperty("clusters", "visibility");
+        map.setLayoutProperty(
+            "clusters",
+            "visibility",
+            clustersVisibility === "visible" ? "none" : "visible"
+        );
+
+        if (visibility === "visible") {
+            $toggleToiletsButton.textContent = "Vis Toaletter";
+            $toiletSection.classList.add("hidden");
+        } else {
+            $toggleToiletsButton.textContent = "Skjul Toaletter";
+            $toiletSection.classList.remove("hidden");
+        }
+    }
+    
+    const onToggleChurches = () => {
+        const visibility = map.getLayoutProperty(CONSTS.CHURCH_LAYER, "visibility");
+        map.setLayoutProperty(
+            CONSTS.CHURCH_LAYER,
+            "visibility",
+            visibility === "visible" ? "none" : "visible"
+        );
+
+        if (visibility === "visible") {
+            $toggleChurchesButton.textContent = "Vis Kirker";
+        } else {
+            $toggleChurchesButton.textContent = "Skjul Kirker";
+        }
+    }
+
+    
+    $toggleToiletsButton.onclick = onToggleToilets;
+    $toggleChurchesButton.onclick = onToggleChurches;
+
 	updateToiletList();
+    onToggleToilets();
+    onToggleChurches();
 };
 
 map.on("load", async () => {
@@ -191,7 +287,7 @@ let loadedMeny = false;
 map.on("sourcedata", async (e) => {
 	if (loadedMeny) return;
 
-	if (e.sourceId === CONSTS.SOURCE && e.isSourceLoaded) {
+	if (e.sourceId === CONSTS.TOILET_SOURCE && e.isSourceLoaded) {
 		loadedMeny = true;
 		await meny();
 	}
