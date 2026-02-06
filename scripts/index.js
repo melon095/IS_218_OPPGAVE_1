@@ -102,6 +102,7 @@ const lastInnDataFraGeoJSON = async () => {
         map.addSource(CONSTS.CHURCH_SOURCE, {
             type: "geojson",
             data: churchData,
+            cluster: true,
         });
 
         map.addLayer({
@@ -115,6 +116,42 @@ const lastInnDataFraGeoJSON = async () => {
                 "circle-stroke-color": "#ffffff",
             },
         });
+
+        map.addLayer({
+            id: "church-clusters",
+            type: "circle",
+            source: CONSTS.CHURCH_SOURCE,
+            filter: ["has", "point_count"],
+            paint: {
+                "circle-color": [
+                    "step",
+                    ["get", "point_count"],
+                    "#d09206", // < 10
+                    10,
+                    "#c4c244", // 10-50
+                    50,
+                    "#ae4f75", // > 50
+                ],
+                "circle-radius": ["step", ["get", "point_count"], 20, 10, 30, 50, 40],
+                "circle-stroke-width": 1,
+                "circle-stroke-color": "#fff",
+            },
+        });
+        map.addLayer({
+            id: "church-cluster-count",
+            type: "symbol",
+            source: CONSTS.CHURCH_SOURCE,
+            filter: ["has", "point_count"],
+            layout: {
+                "text-field": ["get", "point_count"],
+                "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
+                "text-size": 12,
+            },
+            paint: {
+                "text-color": "#fff",
+            },
+        });
+
 	} catch (error) {
 		console.error("Feil under lasting av data fra GeoJSON:", error);
 	}
@@ -260,6 +297,13 @@ const meny = async () => {
             CONSTS.CHURCH_LAYER,
             "visibility",
             visibility === "visible" ? "none" : "visible"
+        );
+
+        const clustersVisibility = map.getLayoutProperty("church-clusters", "visibility");
+        map.setLayoutProperty(
+            "church-clusters",
+            "visibility",
+            clustersVisibility === "visible" ? "none" : "visible"
         );
 
         if (visibility === "visible") {
