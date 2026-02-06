@@ -336,3 +336,6 @@ map.on("sourcedata", async (e) => {
 		await meny();
 	}
 });
+
+const audio = document.getElementById("bird-sounds");
+audio.play();
