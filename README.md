@@ -33,3 +33,13 @@
 	- Kartvisningen håndteres av et kartbibliotek i nettleseren
 	- Bakgrunnskart hentes direkte fra Kartverket via en ekstern OGC WMS-tjeneste
 	- Romlig filtrering og interaktivitet utføres i frontend
+
+## 6.Refleksjon
+	
+	Løsningen håndterer romlig filtrering i frontend, noe som fungerer godt for små datasett, men som kunne vært forbedret ved å bruke en romlig database for bedre ytelse og skalerbarhet. Bruken av WMS som bakgrunnskart gir god kartkvalitet, men vektorfliser kunne gitt bedre ytelse og mer fleksibel styling. Brukergrensesnittet kunne vært videreutviklet med tydeligere tilbakemeldinger og mer avanserte filtervalg. Videre kunne datamodellen vært utvidet med flere attributter for å støtte mer detaljerte analyser. I en mer komplett løsning kunne også autentisering og dynamisk oppdatering av data vært aktuelt.
+
+
+## Link til datasettene
+
+	- Tilgjengelighet: https://kartkatalog.geonorge.no/metadata/tilgjengelighet/843ab449-888c-4b08-bd66-d8b3efc0e529?search=Tilgjen
+	- Kirker: https://kartkatalog.geonorge.no/metadata/kirkebygg-forenklet/eea87664-d936-478e-897a-c38ca7c478a0?search=kirker
