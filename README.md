@@ -6,20 +6,19 @@ Kartløsningen er utviklet for å gjøre det enklere å finne og bruke offentlig
 
 
 ## 3.Teknisk stack
-| Komponent | Teknologi |
-|-----------|-----------| 
-| Kartbibliotek | MapLibre |
-| Bakgrunnskart | KartVerket |
-| Eksternt kartlag | Kartverket WMS (GeoNorge) |
-| Datasett (lokalt) | GeoJSON |
-| GIS-verktøy | QGIS |
-| Programmering | JavaScript |
-| Server (lokal) | VS Code Live Preview |
+| Komponent | Teknologi | Versjon |
+|-----------|-----------|---------|
+| Kartbibliotek | MapLibre | 5.16.0 |
+| Bakgrunnskart | KartVerket | 1.0.0 |
+| Eksternt kartlag | Kartverket WMS (GeoNorge) | - |
+| Datasett (lokalt) | GeoJSON | - |
+| GIS-verktøy | QGIS | 3.40.14 |
+| Programmering | JavaScript | ES2025 |
+| Server (lokal) | VS Code Live Preview | - |
 
 ## 4.DataKatalog
 | Datasett | Kilde | Format | Bearbeiding |
 |--------|------|--------|------------|
-| Punkter | Egendefinert (laget i QGIS) | GeoJSON | Opprettet i QGIS, reprojisert til EPSG:4326 |
 | Bakgrunnskart | Kartverket (GeoNorge – Norgeskart) | WMS (OGC) | Lest direkte via ekstern WMS-tjeneste |
 | Offentlige toalletter (tilgjengelighet) | GeoNorge - https://kartkatalog.geonorge.no/metadata/tilgjengelighet/search=Tilgjen | GeoJSON | Brukt som temalag, kan skrus av/på
 | Kirker | GeoNorge - https://kartkatalog.geonorge.no/metadata/kirkebygg-forenklet/eea87664-d936-478e-897ac478a0?search=kirker | GeoJSON | Brukt som temalag, kan skrus av/på
