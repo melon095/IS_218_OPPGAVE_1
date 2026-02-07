@@ -27,11 +27,11 @@ const map = new maplibregl.Map({
 globalThis.map = map;
 
 const CONSTS = {
-	TOILET_DATASET_PATH: "/dataset/handikapp_toalett.geojson",
+	TOILET_DATASET_PATH: "dataset/handikapp_toalett.geojson",
 	TOILET_SOURCE: "handikapp_toalett_source",
 	TOILET_LAYER: "handikapp_toalett_layer",
 	TOILET_LAYER_COLOR: "#FFC0CB",
-	CHURCH_DATASET_PATH: "/dataset/kirker.geojson",
+	CHURCH_DATASET_PATH: "dataset/kirker.geojson",
 	CHURCH_SOURCE: "church_source",
 	CHURCH_LAYER: "church_layer",
 	CHURCH_LAYER_COLOR: "#d09206",
