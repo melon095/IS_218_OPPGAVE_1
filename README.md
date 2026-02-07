@@ -3,6 +3,7 @@
 Kartløsningen er utviklet for å gjøre det enklere å finne og bruke offentlige toaletter i et avgrenset område. Kartet visualiserer toaletter som geografiske objekter og gir brukeren mulighet til å filtrere disse basert på egenskaper som tilgjengelighet (for eksempel rampe og innendørs lys). Interaktive kontroller gjør det mulig å skru lag av og på, samt filtrere hvilke objekter som vises, slik at kartet kan tilpasses ulike brukerbehov.
 
 ## 2.Demo av system
+https://github.com/user-attachments/assets/c1e20ebe-c022-47d0-a008-3725b602b26e
 
 
 ## 3.Teknisk stack
