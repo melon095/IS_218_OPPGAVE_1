@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IS-218 - Oppgave 1</title>
+    <link href="https://unpkg.com/maplibre-gl@^5.16.0/dist/maplibre-gl.css" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles/index.css">
+</head>
+<body>
+    <div class="glass-card" id="layout">
+        <aside id="menu">
+            <div id="layer-control">
+                <h2>Velg kartlag</h2>
+                <button id="toggle-toilets" type="submit" name="layer">Skjul Toaletter (t)</button>
+                <button id="toggle-churches" type="submit" name="layer">Skjul Kirker (k)</button>
+                <button id="toggle-sound" type="submit" name="sound">Demp lyd (m)</button>
+                <audio id="bird-sounds" src="lyder/birdsounds.mp3" loop autoplay></audio>
+            </div>
+            <div id="toilet-section">
+                <div id="filter-buttons">
+                    <h2>Filtrer toaletter</h2>
+                    <button id="filter-handicap-lighting" type="submit" name="filter">
+                        Toalett med innendørs lys
+                    </button>
+                    <button id="filter-handicap-ramp" type="submit" name="filter">
+                        Toalett med rampe
+                    </button>
+                    <button id="reset-filters" type="submit">Tilbakestill filtre</button>
+                </div>
+            </div>
+        </aside>
+        <main id="map"></main>
+    </div>
+
+    <script src="https://unpkg.com/maplibre-gl@^5.16.0/dist/maplibre-gl.js"></script>
+    <script src="./scripts/index.js" type="module"></script>
+</body>
+</html>
