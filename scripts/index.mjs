@@ -108,20 +108,22 @@ const filterState = {
 	tilfluktsromMinPlasser: "",
 };
 
+const byggFilter = (parts) => {
+	if (parts.length === 0) return null;
+	if (parts.length === 1) return parts[0];
+
+	return ["all", ...parts];
+};
+
 const oppdaterBrannstasjonFilter = () => {
 	const parts = [
 		fylkeFilter(filterState.fylkeGeometri),
 		brannstasjonStasjonstypeFilter(filterState.brannstasjonType),
 	].filter(Boolean);
 
-	map.setFilter(
-		BRANNSTASJON.LAYER,
-		parts.length === 0
-			? null
-			: parts.length === 1
-				? parts[0]
-				: ["all", ...parts],
-	);
+	const filter = byggFilter(parts);
+
+	map.setFilter(BRANNSTASJON.LAYER, filter);
 };
 
 const oppdaterTilfluktsromFilter = () => {
@@ -130,14 +132,9 @@ const oppdaterTilfluktsromFilter = () => {
 		tilfluktsromKapasitetsFilter(filterState.tilfluktsromMinPlasser),
 	].filter(Boolean);
 
-	map.setFilter(
-		TILFLUKTSROM.LAYER,
-		parts.length === 0
-			? null
-			: parts.length === 1
-				? parts[0]
-				: ["all", ...parts],
-	);
+	const filter = byggFilter(parts);
+
+	map.setFilter(TILFLUKTSROM.LAYER, filter);
 };
 
 const oppdaterAlleFiltre = () => {

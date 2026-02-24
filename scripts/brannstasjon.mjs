@@ -2,7 +2,8 @@ export const BRANNSTASJON = {
 	SOURCE: "brannstasjon_source",
 	LAYER: "brannstasjon_layer",
 	DATASET_PATH: "dataset/brannstasjoner.geojson",
-	COLOR: "#e63c3c",
+	HOVEDSTASJON_COLOR: "#e63c3c",
+	LOKAL_STASJON_COLOR: "#f09a3a",
 };
 
 export const lastInnBrannstasjoner = async (map) => {
@@ -23,10 +24,10 @@ export const lastInnBrannstasjoner = async (map) => {
 				"match",
 				["get", "stasjonstype"],
 				"H",
-				BRANNSTASJON.COLOR,
+				BRANNSTASJON.HOVEDSTASJON_COLOR,
 				"L",
-				"#f09a3a",
-				BRANNSTASJON.COLOR,
+				BRANNSTASJON.LOKAL_STASJON_COLOR,
+				BRANNSTASJON.HOVEDSTASJON_COLOR,
 			],
 			"circle-stroke-width": 2,
 			"circle-stroke-color": "#ffffff",
@@ -91,5 +92,6 @@ export const installBrannstasjonEventer = (map) => {
 
 export const brannstasjonStasjonstypeFilter = (type) => {
 	if (!type) return null;
+
 	return ["==", ["get", "stasjonstype"], type];
 };
