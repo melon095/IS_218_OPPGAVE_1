@@ -21,37 +21,34 @@ const map = new maplibregl.Map({
 			},
 		],
 	},
-	center: [8.003155, 58.163655],
+	center: [8.003155, 58.16365],
 	zoom: 15,
 });
 globalThis.map = map;
 
 const CONSTS = {
-	TOILET_DATASET_PATH: "dataset/handikapp_toalett.geojson",
-	TOILET_SOURCE: "handikapp_toalett_source",
-	TOILET_LAYER: "handikapp_toalett_layer",
-	TOILET_LAYER_COLOR: "#FFC0CB",
-	CHURCH_DATASET_PATH: "dataset/kirker.geojson",
-	CHURCH_SOURCE: "church_source",
-	CHURCH_LAYER: "church_layer",
-	CHURCH_LAYER_COLOR: "#d09206",
+	ALARM_DATASET_PATH: "dataset/brannalarm_sentral.geojson",
+	ALARM_SOURCE: "alarm_source",
+	ALARM_LAYER: "alarm_layer",
+	CLUSTER_LAYER: "alarm_clusters",
+	CLUSTER_COUNT_LAYER: "alarm_cluster_count",
+	ALARM_COLOR: "#395248",
 };
 
 const lastInnDataFraGeoJSON = async () => {
 	try {
-		const toiletData = await fetch(CONSTS.TOILET_DATASET_PATH).then((res) =>
+		const alarmData = await fetch(CONSTS.ALARM_DATASET_PATH).then((res) =>
 			res.json(),
 		);
-
-		map.addSource(CONSTS.TOILET_SOURCE, {
+		map.addSource(CONSTS.ALARM_SOURCE, {
 			type: "geojson",
-			data: toiletData,
+			data: alarmData,
 			cluster: true,
 		});
 
 		map.addLayer({
-			id: CONSTS.TOILET_LAYER,
-			source: CONSTS.TOILET_SOURCE,
+			id: CONSTS.ALARM_LAYER,
+			source: CONSTS.ALARM_SOURCE,
 			type: "circle",
 			paint: {
 				"circle-radius": 6,
@@ -64,7 +61,7 @@ const lastInnDataFraGeoJSON = async () => {
 		map.addLayer({
 			id: "clusters",
 			type: "circle",
-			source: CONSTS.TOILET_SOURCE,
+			source: CONSTS.ALARM_SOURCE,
 			filter: ["has", "point_count"],
 			paint: {
 				"circle-color": [
@@ -85,65 +82,7 @@ const lastInnDataFraGeoJSON = async () => {
 		map.addLayer({
 			id: "cluster-count",
 			type: "symbol",
-			source: CONSTS.TOILET_SOURCE,
-			filter: ["has", "point_count"],
-			layout: {
-				"text-field": ["get", "point_count"],
-				"text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
-				"text-size": 12,
-			},
-			paint: {
-				"text-color": "#fff",
-			},
-		});
-
-		const churchData = await fetch(CONSTS.CHURCH_DATASET_PATH).then((res) =>
-			res.json(),
-		);
-
-		map.addSource(CONSTS.CHURCH_SOURCE, {
-			type: "geojson",
-			data: churchData,
-			cluster: true,
-		});
-
-		map.addLayer({
-			id: CONSTS.CHURCH_LAYER,
-			source: CONSTS.CHURCH_SOURCE,
-			type: "circle",
-			paint: {
-				"circle-radius": 6,
-				"circle-color": CONSTS.CHURCH_LAYER_COLOR,
-				"circle-stroke-width": 2,
-				"circle-stroke-color": "#ffffff",
-			},
-		});
-
-		map.addLayer({
-			id: "church-clusters",
-			type: "circle",
-			source: CONSTS.CHURCH_SOURCE,
-			filter: ["has", "point_count"],
-			paint: {
-				"circle-color": [
-					"step",
-					["get", "point_count"],
-					"#8B4513", // < 10
-					10,
-					"#DAA520", // 10-50
-					50,
-					"#4B0082", // > 50
-				],
-				"circle-radius": ["step", ["get", "point_count"], 20, 10, 30, 50, 40],
-				"circle-stroke-width": 1,
-				"circle-stroke-color": "#fff",
-			},
-		});
-
-		map.addLayer({
-			id: "church-cluster-count",
-			type: "symbol",
-			source: CONSTS.CHURCH_SOURCE,
+			source: CONSTS.ALARM_SOURCE,
 			filter: ["has", "point_count"],
 			layout: {
 				"text-field": ["get", "point_count"],
@@ -161,55 +100,28 @@ const lastInnDataFraGeoJSON = async () => {
 
 const installereEventer = () => {
 	// https://maplibre.org/maplibre-gl-js/docs/examples/display-a-popup-on-click/
-	map.on("click", CONSTS.TOILET_LAYER, (e) => {
+
+	map.on("click", CONSTS.ALARM_LAYER, (e) => {
 		const coordinates = e.features[0].geometry.coordinates.slice();
-		const { kommentar, forbedringsforslag, bildefil1, bildefil2, bildefil3 } =
+		const { navn, lokalisering, opphav, datauttaksdato } =
 			e.features[0].properties;
 
-		const images = [bildefil1, bildefil2, bildefil3].filter(Boolean);
-
-		let html = `<strong>Kommentar:</strong> ${kommentar || "Ingen kommentar"}<br/>
-                    <strong>Forbedringsforslag:</strong> ${forbedringsforslag || "Ingen forslag"}`;
-
-		images.forEach((bildefil, idx) => {
-			html += `<br/><img src="${bildefil}" alt="Bilde ${idx + 1}" style="max-width:200px; max-height:200px;"/>`;
-		});
+		const html = `<strong>Bygningsnavn:</strong> ${navn || "Ukjent"}<br/>
+                    <strong>Lokalisering:</strong> ${lokalisering || "Ukjent"}
+                    <strong>Opphav:</strong> ${opphav || "Ukjent"}<br/>
+                    <strong>Uttaksdato:</strong> ${datauttaksdato || "Ukjent"}`;
 
 		new maplibregl.Popup({ className: "popup" })
 			.setLngLat(coordinates)
 			.setHTML(html)
 			.addTo(map);
 	});
-
-	map.on("mouseenter", CONSTS.TOILET_LAYER, () => {
+	
+	map.on("mouseenter", CONSTS.ALARM_LAYER, () => {
 		map.getCanvas().style.cursor = "pointer";
 	});
 
-	map.on("mouseleave", CONSTS.TOILET_LAYER, () => {
-		map.getCanvas().style.cursor = "";
-	});
-
-	map.on("click", CONSTS.CHURCH_LAYER, (e) => {
-		const coordinates = e.features[0].geometry.coordinates.slice();
-		const { bygningsnavn, adressenavn, postnummer, poststed, kommune, fylke } =
-			e.features[0].properties;
-
-		const html = `<strong>Bygningsnavn:</strong> ${bygningsnavn || "Ukjent"}<br/>
-                    <strong>Adresse:</strong> ${adressenavn || "Ukjent"}, ${postnummer || "Ukjent"} ${poststed || "Ukjent"}<br/>
-                    <strong>Kommune:</strong> ${kommune || "Ukjent"}<br/>
-                    <strong>Fylke:</strong> ${fylke || "Ukjent"}`;
-
-		new maplibregl.Popup({ className: "popup" })
-			.setLngLat(coordinates)
-			.setHTML(html)
-			.addTo(map);
-	});
-
-	map.on("mouseenter", CONSTS.CHURCH_LAYER, () => {
-		map.getCanvas().style.cursor = "pointer";
-	});
-
-	map.on("mouseleave", CONSTS.CHURCH_LAYER, () => {
+	map.on("mouseleave", CONSTS.ALARM_LAYER, () => {
 		map.getCanvas().style.cursor = "";
 	});
 };
@@ -217,78 +129,37 @@ const installereEventer = () => {
 const meny = async () => {
 	const audio = document.getElementById("bird-sounds");
 
-	const $toiletSection = document.getElementById("toilet-section"),
-		$filterHandicapLightButton = document.getElementById(
-			"filter-handicap-lighting",
-		),
-		$filterHandicapRampButton = document.getElementById("filter-handicap-ramp"),
-		$resetFiltersButton = document.getElementById("reset-filters"),
-		$toggleToiletsButton = document.getElementById("toggle-toilets"),
-		$toggleChurchesButton = document.getElementById("toggle-churches"),
+	const 
+		$toggleAlarmButton = document.getElementById("toggle-alarm"),
 		$toggleSoundButton = document.getElementById("toggle-sound");
 
-	$filterHandicapLightButton.onclick = () => {
-		const filterExpression = ["==", ["get", "belysningInne"], "Ja"];
-		map.setFilter(CONSTS.TOILET_LAYER, filterExpression);
-	};
+		const onToggleAlarm = () => {
+			const visibility = map.getLayoutProperty(CONSTS.ALARM_LAYER, "visibility");
 
-	$filterHandicapRampButton.onclick = () => {
-		const filterExpression = ["==", ["get", "rampe"], "Ja"];
-		map.setFilter(CONSTS.TOILET_LAYER, filterExpression);
-	};
+			map.setLayoutProperty(
+				CONSTS.ALARM_LAYER,
+				"visibility",
+				visibility === "visible" ? "none" : "visible"
+			);
 
-	$resetFiltersButton.onclick = () => {
-		map.setFilter(CONSTS.TOILET_LAYER, null);
-	};
+			map.setLayoutProperty(
+				CONSTS.CLUSTER_LAYER,
+				"visibility",
+				visibility === "visible" ? "none" : "visible"
+			);
 
-	const onToggleToilets = () => {
-		const visibility = map.getLayoutProperty(CONSTS.TOILET_LAYER, "visibility");
-		map.setLayoutProperty(
-			CONSTS.TOILET_LAYER,
-			"visibility",
-			visibility === "visible" ? "none" : "visible",
-		);
+			map.setLayoutProperty(
+				CONSTS.CLUSTER_COUNT_LAYER,
+				"visibility",
+				visibility === "visible" ? "none" : "visible"
+			);
 
-		const clustersVisibility = map.getLayoutProperty("clusters", "visibility");
-		map.setLayoutProperty(
-			"clusters",
-			"visibility",
-			clustersVisibility === "visible" ? "none" : "visible",
-		);
-
-		if (visibility === "visible") {
-			$toggleToiletsButton.textContent = "Vis Toaletter (T)";
-			$toiletSection.classList.add("hidden");
-		} else {
-			$toggleToiletsButton.textContent = "Skjul Toaletter (T)";
-			$toiletSection.classList.remove("hidden");
-		}
-	};
-
-	const onToggleChurches = () => {
-		const visibility = map.getLayoutProperty(CONSTS.CHURCH_LAYER, "visibility");
-		map.setLayoutProperty(
-			CONSTS.CHURCH_LAYER,
-			"visibility",
-			visibility === "visible" ? "none" : "visible",
-		);
-
-		const clustersVisibility = map.getLayoutProperty(
-			"church-clusters",
-			"visibility",
-		);
-		map.setLayoutProperty(
-			"church-clusters",
-			"visibility",
-			clustersVisibility === "visible" ? "none" : "visible",
-		);
-
-		if (visibility === "visible") {
-			$toggleChurchesButton.textContent = "Vis Kirker (K)";
-		} else {
-			$toggleChurchesButton.textContent = "Skjul Kirker (K)";
-		}
-	};
+			if (visibility === "visible") {
+				$toggleAlarmButton.textContent = "Vis Alarm-sentraler (K)";
+			} else {
+				$toggleAlarmButton.textContent = "Skjul Alarm-sentraler (K)";
+			}
+		};
 
 	const onToggleSound = () => {
 		if (audio.paused) {
@@ -300,26 +171,20 @@ const meny = async () => {
 		}
 	};
 
-	$toggleToiletsButton.onclick = onToggleToilets;
-	$toggleChurchesButton.onclick = onToggleChurches;
+	$toggleAlarmButton.onclick = onToggleAlarm;
 	$toggleSoundButton.onclick = onToggleSound;
 
 	document.onkeydown = (e) => {
 		switch (e.key.toLowerCase()) {
-			case "t":
-				onToggleToilets();
-				break;
 			case "k":
-				onToggleChurches();
+				onToggleAlarm();
 				break;
 			case "m":
 				onToggleSound();
 				break;
 		}
 	};
-
-	onToggleToilets();
-	onToggleChurches();
+	onToggleAlarm();
 };
 
 map.on("load", async () => {
@@ -327,12 +192,8 @@ map.on("load", async () => {
 	installereEventer();
 });
 
-let loadedMeny = false;
-map.on("sourcedata", async (e) => {
-	if (loadedMeny) return;
-
-	if (e.sourceId === CONSTS.TOILET_SOURCE && e.isSourceLoaded) {
-		loadedMeny = true;
-		await meny();
-	}
+map.on("load", async () => {
+	await lastInnDataFraGeoJSON();
+	installereEventer();
+	await meny();
 });
