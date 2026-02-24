@@ -1,39 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="no">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IS-218 - Oppgave 1</title>
+    <title>IS-218 | Oppgave 1</title>
     <link href="https://unpkg.com/maplibre-gl@^5.16.0/dist/maplibre-gl.css" rel="stylesheet" />
     <link rel="stylesheet" href="./styles/index.css">
 </head>
 <body>
     <div class="glass-card" id="layout">
         <aside id="menu">
+
             <div id="layer-control">
-                <h2>Velg kartlag</h2>
-                <button id="toggle-toilets" type="submit" name="layer">Skjul Toaletter (t)</button>
-                <button id="toggle-churches" type="submit" name="layer">Skjul Kirker (k)</button>
-                <button id="toggle-sound" type="submit" name="sound">Demp lyd (m)</button>
+                <h2>Kartlag</h2>
+                <button id="toggle-brannstasjoner" type="button" name="layer">Skjul Brannstasjoner (B)</button>
+                <button id="toggle-tilfluktsrom" type="button" name="layer">Skjul Tilfluktsrom (T)</button>
+                <button id="toggle-sound" type="button" name="sound">Skru av lyd (M)</button>
                 <audio id="bird-sounds" src="lyder/birdsounds.mp3" loop autoplay></audio>
             </div>
-            <div id="toilet-section">
-                <div id="filter-buttons">
-                    <h2>Filtrer toaletter</h2>
-                    <button id="filter-handicap-lighting" type="submit" name="filter">
-                        Toalett med innendørs lys
-                    </button>
-                    <button id="filter-handicap-ramp" type="submit" name="filter">
-                        Toalett med rampe
-                    </button>
-                    <button id="reset-filters" type="submit">Tilbakestill filtre</button>
-                </div>
+
+            <div id="romlig-filter">
+                <h2>Romlig filtrering</h2>
+                <label for="fylke-filter">Velg fylke</label>
+                <select id="fylke-filter">
+                    <option value="">Alle fylker</option>
+                </select>
+                <button id="reset-fylke" type="button">Tilbakestill fylke</button>
             </div>
+
+            <div id="brannstasjon-section">
+                <h2>Brannstasjoner</h2>
+                <label for="stasjonstype-filter">Stasjonstype</label>
+                <select id="stasjonstype-filter">
+                    <option value="">Alle typer</option>
+                    <option value="H">Hovedstasjon (H)</option>
+                    <option value="L">Lokal / underordnet (L)</option>
+                </select>
+                <button id="reset-brann-filter" type="button">Tilbakestill type</button>
+            </div>
+
+            <div id="tilfluktsrom-section">
+                <h2>Tilfluktsrom</h2>
+                <label for="min-plasser">Minimum antall plasser</label>
+                <input  id="min-plasser" type="number" min="0" step="50" placeholder="f.eks. 200" />
+                <button id="reset-tifl-filter" type="button">Tilbakestill kapasitet</button>
+            </div>
+
         </aside>
+
         <main id="map"></main>
     </div>
 
     <script src="https://unpkg.com/maplibre-gl@^5.16.0/dist/maplibre-gl.js"></script>
-    <script src="./scripts/index.js" type="module"></script>
+    <script src="./scripts/index.mjs" type="module"></script>
 </body>
 </html>
