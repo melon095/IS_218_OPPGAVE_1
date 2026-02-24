@@ -4,8 +4,7 @@
 Kartløsningen visualiserer to beredskaps-datasett over hele Norge: **offentlige tilfluktsrom** og **brannstasjoner**. Brukeren kan filtrere innholdet romlig per fylke (basert på offisielle grenser fra Kartverket), i tillegg til attributtbaserte filtre for hvert datasett. Interaktive kontroller lar brukeren skru lag av og på, og klikk på punkter viser detaljert informasjon i popup-vinduer.
 
 ## 2.Demo av system
-https://github.com/user-attachments/assets/c1e20ebe-c022-47d0-a008-3725b602b26e
-
+https://github.com/user-attachments/assets/f6a73c03-efca-43c6-a7b2-e22edfeae587
 
 ## 3.Teknisk stack
 | Komponent        | Teknologi            | Versjon                                       |
