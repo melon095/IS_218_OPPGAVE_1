@@ -21,7 +21,7 @@ https://github.com/user-attachments/assets/f6a73c03-efca-43c6-a7b2-e22edfeae587
 | Datasett       | Kilde                                                                                                             | Format                                  |
 | -------------- | ----------------------------------------------------------------------------------------------------------------- | --------------------------------------- |
 | Bakgrunnskart  | [Kartverket](https://cache.kartverket.no/) (GeoNorge – Norgeskart)                                                | WMS                                     |
-| Fylkegrenser   | [Kartverket administrative enheter-API](https://https://api.kartverket.no/kommuneinfo/v1/)                        | GeoJSON                                 |
+| Fylkegrenser   | [Kartverket administrative enheter-API](https://api.kartverket.no/kommuneinfo/v1/)                        | GeoJSON                                 |
 | Tilfluktsrom   | [GeoNorge](https://kartkatalog.geonorge.no/metadata/tilfluktsrom-offentlige/dbae9aae-10e7-4b75-8d67-7f0e8828f3d8) | GeoJSON                                 |
 | Brannstasjoner | [GeoNorge](https://kartkatalog.geonorge.no/metadata/brannstasjoner/0ccce81d-a72e-46ca-8bd9-57b362376485)          | GML - Lastet opp i Supabase via ogr2ogr |
 
