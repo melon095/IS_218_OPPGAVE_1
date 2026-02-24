@@ -12,10 +12,6 @@ import {
 	tilfluktsromKapasitetsFilter,
 } from "./tilfluktsrom.mjs";
 
-// ---------------------------------------------------------------------------
-// Kart
-// ---------------------------------------------------------------------------
-
 const map = new maplibregl.Map({
 	container: "map",
 	style: {
@@ -45,75 +41,76 @@ const map = new maplibregl.Map({
 
 globalThis.map = map;
 
-// ---------------------------------------------------------------------------
-// Fylke – romlig filtrering (omtrentlig avgrensningsboks per fylke)
-// Format: [minLon, minLat, maxLon, maxLat]
-// ---------------------------------------------------------------------------
+const beregnBoks = (geometry) => {
+	const lons = [];
+	const lats = [];
 
-const FYLKER_BBOX = {
-	Oslo: [10.3, 59.8, 11.0, 60.0],
-	Akershus: [10.0, 59.3, 11.8, 60.4],
-	Østfold: [10.1, 58.7, 12.1, 59.7],
-	Buskerud: [8.4, 59.2, 10.6, 60.9],
-	Vestfold: [9.4, 58.8, 10.7, 59.65],
-	Telemark: [7.4, 58.5, 9.9, 60.1],
-	Agder: [6.4, 57.8, 9.5, 59.2],
-	Rogaland: [5.0, 57.9, 7.1, 59.8],
-	Vestland: [4.4, 59.4, 7.9, 61.6],
-	"Møre og Romsdal": [5.5, 61.6, 9.3, 63.1],
-	Trøndelag: [9.9, 62.2, 15.6, 65.2],
-	Innlandet: [9.8, 60.5, 13.0, 62.9],
-	Nordland: [11.8, 64.9, 18.6, 68.4],
-	Troms: [14.6, 68.0, 21.5, 70.6],
-	Finnmark: [21.0, 69.3, 31.6, 71.3],
-};
+	const collect = (coords) => {
+		if (typeof coords[0] === "number") {
+			lons.push(coords[0]);
+			lats.push(coords[1]);
+		} else {
+			coords.forEach(collect);
+		}
+	};
 
-/**
- * Bygger et MapLibre `within`-filteruttrykk for et rektangulært fylkesomriss.
- * @param {string} fylke
- * @returns {Array|null}
- */
-const fylkeBboxFilter = (fylke) => {
-	if (!fylke || !FYLKER_BBOX[fylke]) return null;
-
-	const [minLon, minLat, maxLon, maxLat] = FYLKER_BBOX[fylke];
+	collect(geometry.coordinates);
 
 	return [
-		"within",
-		{
-			type: "Feature",
-			geometry: {
-				type: "Polygon",
-				coordinates: [
-					[
-						[minLon, minLat],
-						[maxLon, minLat],
-						[maxLon, maxLat],
-						[minLon, maxLat],
-						[minLon, minLat],
-					],
-				],
-			},
-		},
+		Math.min(...lons),
+		Math.min(...lats),
+		Math.max(...lons),
+		Math.max(...lats),
 	];
 };
 
-// ---------------------------------------------------------------------------
-// Tilstand for aktive filtre
-// ---------------------------------------------------------------------------
+const fylkeFilter = (geometri) => {
+	if (!geometri) return null;
 
-const filterState = {
-	fylke: "",
-	brannstasjonType: "", // "H" | "L" | ""
-	tilfluktsromMinPlasser: "", // tall som streng
+	return ["within", { type: "Feature", geometry: geometri }];
 };
 
-/**
- * Beregner og setter kombinert filter for brannstasjoner.
- */
+const KOMMUNEINFO_BASE = "https://api.kartverket.no/kommuneinfo/v1";
+
+const hentFylker = async () => {
+	try {
+		const liste = await fetch(`${KOMMUNEINFO_BASE}/fylker`).then((res) => {
+			if (!res.ok) throw new Error(`Fylkeliste: HTTP ${res.status}`);
+			return res.json();
+		});
+
+		const oppslag = await Promise.all(
+			liste.map(async ({ fylkesnavn, fylkesnummer }) => {
+				const detaljer = await fetch(
+					`${KOMMUNEINFO_BASE}/fylker/${fylkesnummer}?utkoordsys=4326&filtrer=avgrensningsboks`,
+				).then((res) => {
+					if (!res.ok)
+						throw new Error(`Fylke ${fylkesnavn}: HTTP ${res.status}`);
+					return res.json();
+				});
+				return { namn: fylkesnavn, geometri: detaljer.avgrensningsboks };
+			}),
+		);
+
+		return Object.fromEntries(
+			oppslag.map(({ namn, geometri }) => [namn, geometri]),
+		);
+	} catch (err) {
+		console.error("Kunne ikke hente fylkegrenser fra Kartverket:", err);
+		return {};
+	}
+};
+
+const filterState = {
+	fylkeNavn: "",
+	fylkeGeometri: null,
+	brannstasjonType: "",
+	tilfluktsromMinPlasser: "",
+};
+
 const oppdaterBrannstasjonFilter = () => {
 	const parts = [
-		fylkeBboxFilter(filterState.fylke),
+		fylkeFilter(filterState.fylkeGeometri),
 		brannstasjonStasjonstypeFilter(filterState.brannstasjonType),
 	].filter(Boolean);
 
@@ -127,12 +124,9 @@ const oppdaterBrannstasjonFilter = () => {
 	);
 };
 
-/**
- * Beregner og setter kombinert filter for tilfluktsrom.
- */
 const oppdaterTilfluktsromFilter = () => {
 	const parts = [
-		fylkeBboxFilter(filterState.fylke),
+		fylkeFilter(filterState.fylkeGeometri),
 		tilfluktsromKapasitetsFilter(filterState.tilfluktsromMinPlasser),
 	].filter(Boolean);
 
@@ -151,11 +145,7 @@ const oppdaterAlleFiltre = () => {
 	oppdaterTilfluktsromFilter();
 };
 
-// ---------------------------------------------------------------------------
-// Meny
-// ---------------------------------------------------------------------------
-
-const meny = () => {
+const meny = (fylkeGeometrier) => {
 	const audio = document.getElementById("bird-sounds");
 
 	const $toggleBrannBtn = document.getElementById("toggle-brannstasjoner");
@@ -171,19 +161,32 @@ const meny = () => {
 	const $minPlasserInput = document.getElementById("min-plasser");
 	const $resetTilflBtn = document.getElementById("reset-tifl-filter");
 
-	// --- Fylkedropdown ---
-	Object.keys(FYLKER_BBOX).forEach((fylke) => {
-		const option = document.createElement("option");
-		option.value = fylke;
-		option.textContent = fylke;
-		$fylkeSelect.appendChild(option);
-	});
+	const sorterteNavn = Object.keys(fylkeGeometrier).sort();
+	if (sorterteNavn.length === 0) {
+		const opt = document.createElement("option");
+		opt.disabled = true;
+		opt.textContent = "Kunne ikke laste fylker";
+		$fylkeSelect.appendChild(opt);
+	} else {
+		sorterteNavn.forEach((navn) => {
+			const option = document.createElement("option");
+			option.value = navn;
+			option.textContent = navn;
+			$fylkeSelect.appendChild(option);
+		});
+	}
 
 	$fylkeSelect.onchange = () => {
-		filterState.fylke = $fylkeSelect.value;
+		const valgtNavn = $fylkeSelect.value;
+		filterState.fylkeNavn = valgtNavn;
+		filterState.fylkeGeometri = valgtNavn
+			? (fylkeGeometrier[valgtNavn] ?? null)
+			: null;
 
-		if (filterState.fylke) {
-			const [minLon, minLat, maxLon, maxLat] = FYLKER_BBOX[filterState.fylke];
+		if (filterState.fylkeGeometri) {
+			const [minLon, minLat, maxLon, maxLat] = beregnBoks(
+				filterState.fylkeGeometri,
+			);
 			map.fitBounds(
 				[
 					[minLon, minLat],
@@ -197,12 +200,12 @@ const meny = () => {
 	};
 
 	$resetFylkeBtn.onclick = () => {
-		filterState.fylke = "";
+		filterState.fylkeNavn = "";
+		filterState.fylkeGeometri = null;
 		$fylkeSelect.value = "";
 		oppdaterAlleFiltre();
 	};
 
-	// --- Stasjonstype-filter (brannstasjon) ---
 	$stasjonstypeSelect.onchange = () => {
 		filterState.brannstasjonType = $stasjonstypeSelect.value;
 		oppdaterBrannstasjonFilter();
@@ -214,7 +217,6 @@ const meny = () => {
 		oppdaterBrannstasjonFilter();
 	};
 
-	// --- Minimumskapasitet-filter (tilfluktsrom) ---
 	$minPlasserInput.oninput = () => {
 		filterState.tilfluktsromMinPlasser = $minPlasserInput.value;
 		oppdaterTilfluktsromFilter();
@@ -226,10 +228,10 @@ const meny = () => {
 		oppdaterTilfluktsromFilter();
 	};
 
-	// --- Lag-synlighetsknapper ---
 	const toggleLayer = (layerId, button, visLabel, skjulLabel) => {
 		const vis = map.getLayoutProperty(layerId, "visibility");
 		const nyVisibility = vis === "visible" ? "none" : "visible";
+
 		map.setLayoutProperty(layerId, "visibility", nyVisibility);
 		button.textContent = nyVisibility === "visible" ? skjulLabel : visLabel;
 	};
@@ -250,7 +252,6 @@ const meny = () => {
 			"Skjul Tilfluktsrom (T)",
 		);
 
-	// --- Lyd ---
 	const onToggleSound = () => {
 		if (audio.paused) {
 			audio.play();
@@ -262,7 +263,6 @@ const meny = () => {
 	};
 	$toggleSoundBtn.onclick = onToggleSound;
 
-	// --- Tastatursnarveler ---
 	document.onkeydown = (e) => {
 		switch (e.key.toLowerCase()) {
 			case "b":
@@ -278,15 +278,15 @@ const meny = () => {
 	};
 };
 
-// ---------------------------------------------------------------------------
-// Oppstart
-// ---------------------------------------------------------------------------
-
 map.on("load", async () => {
-	await Promise.all([lastInnBrannstasjoner(map), lastInnTilfluktsrom(map)]);
+	const [fylkeGeometrier] = await Promise.all([
+		hentFylker(),
+		lastInnBrannstasjoner(map),
+		lastInnTilfluktsrom(map),
+	]);
 
 	installBrannstasjonEventer(map);
 	installTilfluktsromEventer(map);
 
-	meny();
+	meny(fylkeGeometrier);
 });

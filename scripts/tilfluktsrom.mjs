@@ -5,18 +5,12 @@ const SUPABASE = {
 	TABLE: "tilfluktsrom",
 };
 
-const GEOJSON_FALLBACK = "dataset/tilfluktsrom.geojson";
-
 export const TILFLUKTSROM = {
 	SOURCE: "tilfluktsrom_source",
 	LAYER: "tilfluktsrom_layer",
 	COLOR: "#3a8fe6",
 };
 
-/**
- * Prøver å hente data fra Supabase. Faller tilbake til lokal GeoJSON ved feil.
- * @returns {Promise<GeoJSON.FeatureCollection>}
- */
 const hentTilfluktsromData = async () => {
 	try {
 		const raw = await fetch(`${SUPABASE.BASE_URL}${SUPABASE.TABLE}?select=*`, {
@@ -31,31 +25,23 @@ const hentTilfluktsromData = async () => {
 		});
 
 		const features = raw.map((plass) => {
-			const { geometryproperty, romnr, plasser, adresse } = plass;
-
-			const [x, y] = geometryproperty.coordinates;
+			const { posisjon, romnr, plasser, adresse } = plass;
 
 			return {
 				type: "Feature",
-				geometry: { type: "Point", coordinates: [x, y] },
+				geometry: { type: "Point", coordinates: posisjon.coordinates },
 				properties: { romnr, plasser, adresse },
 			};
 		});
 
 		return { type: "FeatureCollection", features };
 	} catch (err) {
-		console.warn(
-			"Supabase ikke tilgjengelig, bruker lokal GeoJSON:",
-			err.message,
-		);
-		return fetch(GEOJSON_FALLBACK).then((res) => res.json());
+		console.error("Feil ved innlastning av tilfluktsromdata:", err);
+
+		return { type: "FeatureCollection", features: [] };
 	}
 };
 
-/**
- * Laster inn tilfluktsrom og legger til lag på kartet.
- * @param {import("maplibre-gl").Map} map
- */
 export const lastInnTilfluktsrom = async (map) => {
 	const data = await hentTilfluktsromData();
 
@@ -77,10 +63,6 @@ export const lastInnTilfluktsrom = async (map) => {
 	});
 };
 
-/**
- * Registrerer klikk- og museeventer for tilfluktsromlaget.
- * @param {import("maplibre-gl").Map} map
- */
 export const installTilfluktsromEventer = (map) => {
 	map.on("click", TILFLUKTSROM.LAYER, (e) => {
 		const coords = e.features[0].geometry.coordinates.slice();
@@ -107,11 +89,6 @@ export const installTilfluktsromEventer = (map) => {
 	});
 };
 
-/**
- * Filteruttrykk for minimum kapasitet (plasser), eller null for ingen filter.
- * @param {number|""} minPlasser
- * @returns {Array|null}
- */
 export const tilfluktsromKapasitetsFilter = (minPlasser) => {
 	if (!minPlasser) return null;
 	return [">=", ["get", "plasser"], Number(minPlasser)];

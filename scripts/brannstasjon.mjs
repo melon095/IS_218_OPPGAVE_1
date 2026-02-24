@@ -5,10 +5,6 @@ export const BRANNSTASJON = {
 	COLOR: "#e63c3c",
 };
 
-/**
- * Laster inn data fra GeoJSON og legger til lag på kartet.
- * @param {import("maplibre-gl").Map} map
- */
 export const lastInnBrannstasjoner = async (map) => {
 	const data = await fetch(BRANNSTASJON.DATASET_PATH).then((res) => res.json());
 
@@ -38,31 +34,38 @@ export const lastInnBrannstasjoner = async (map) => {
 	});
 };
 
-/**
- * Registrerer klikk- og museeventer for brannstasjonslag.
- * @param {import("maplibre-gl").Map} map
- */
 export const installBrannstasjonEventer = (map) => {
 	map.on("click", BRANNSTASJON.LAYER, (e) => {
 		const coords = e.features[0].geometry.coordinates.slice();
 		const { brannstasjon, brannvesen, stasjonstype, kasernert } =
 			e.features[0].properties;
 
-		const stasjonstypeLabel =
-			stasjonstype === "H"
-				? "Hovedstasjon"
-				: stasjonstype === "L"
-					? "Lokal / underordnet stasjon"
-					: stasjonstype;
+		let stasjonstypeLabel;
+		switch (stasjonstype) {
+			case "H":
+				stasjonstypeLabel = "Hovedstasjon";
+				break;
+			case "L":
+				stasjonstypeLabel = "Lokal / underordnet stasjon";
+				break;
+			default:
+				stasjonstypeLabel = stasjonstype || "Ukjent";
+		}
 
-		const kasernertLabel =
-			kasernert === "DN"
-				? "Døgnkasernert"
-				: kasernert === "DA"
-					? "Delvis kasernert"
-					: kasernert === "IK"
-						? "Ikke kasernert"
-						: kasernert;
+		let kasernertLabel;
+		switch (kasernert) {
+			case "DN":
+				kasernertLabel = "Døgnkasernert";
+				break;
+			case "DA":
+				kasernertLabel = "Delvis kasernert";
+				break;
+			case "IK":
+				kasernertLabel = "Ikke kasernert";
+				break;
+			default:
+				kasernertLabel = kasernert || "Ukjent";
+		}
 
 		const html = `
 			<strong>Brannstasjon:</strong> ${brannstasjon || "Ukjent"}<br/>
@@ -86,11 +89,6 @@ export const installBrannstasjonEventer = (map) => {
 	});
 };
 
-/**
- * Filteruttrykk for å vise bare én stasjonstype (H / L), eller null for alle.
- * @param {"H"|"L"|""} type
- * @returns {Array|null}
- */
 export const brannstasjonStasjonstypeFilter = (type) => {
 	if (!type) return null;
 	return ["==", ["get", "stasjonstype"], type];
