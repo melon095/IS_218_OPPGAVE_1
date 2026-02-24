@@ -71,7 +71,7 @@ const lastInnDataFraGeoJSON = async () => {
 		map.addSource(CONSTS.TOILET_SOURCE, {
 			type: "geojson",
 			data: toiletData,
-			cluster: true,
+			// cluster: true,
 		});
 
 		map.addLayer({
@@ -86,41 +86,41 @@ const lastInnDataFraGeoJSON = async () => {
 			},
 		});
 
-		map.addLayer({
-			id: "clusters",
-			type: "circle",
-			source: CONSTS.TOILET_SOURCE,
-			filter: ["has", "point_count"],
-			paint: {
-				"circle-color": [
-					"step",
-					["get", "point_count"],
-					"#007c95", // < 100
-					100,
-					"#c4c244", // 100-750
-					750,
-					"#ae4f75", // > 750
-				],
-				"circle-radius": ["step", ["get", "point_count"], 20, 100, 30, 750, 40],
-				"circle-stroke-width": 1,
-				"circle-stroke-color": "#fff",
-			},
-		});
+		// map.addLayer({
+		// 	id: "clusters",
+		// 	type: "circle",
+		// 	source: CONSTS.TOILET_SOURCE,
+		// 	filter: ["has", "point_count"],
+		// 	paint: {
+		// 		"circle-color": [
+		// 			"step",
+		// 			["get", "point_count"],
+		// 			"#007c95", // < 100
+		// 			100,
+		// 			"#c4c244", // 100-750
+		// 			750,
+		// 			"#ae4f75", // > 750
+		// 		],
+		// 		"circle-radius": ["step", ["get", "point_count"], 20, 100, 30, 750, 40],
+		// 		"circle-stroke-width": 1,
+		// 		"circle-stroke-color": "#fff",
+		// 	},
+		// });
 
-		map.addLayer({
-			id: "cluster-count",
-			type: "symbol",
-			source: CONSTS.TOILET_SOURCE,
-			filter: ["has", "point_count"],
-			layout: {
-				"text-field": ["get", "point_count"],
-				"text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
-				"text-size": 12,
-			},
-			paint: {
-				"text-color": "#fff",
-			},
-		});
+		// map.addLayer({
+		// 	id: "cluster-count",
+		// 	type: "symbol",
+		// 	source: CONSTS.TOILET_SOURCE,
+		// 	filter: ["has", "point_count"],
+		// 	layout: {
+		// 		"text-field": ["get", "point_count"],
+		// 		"text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
+		// 		"text-size": 12,
+		// 	},
+		// 	paint: {
+		// 		"text-color": "#fff",
+		// 	},
+		// });
 	} catch (error) {
 		console.error("Feil under lasting av data fra GeoJSON:", error);
 	}
@@ -182,7 +182,7 @@ const lastInnDataFraSupabase = async () => {
 			type: "FeatureCollection",
 			features: churchData,
 		},
-		cluster: true,
+		// cluster: true,
 	});
 
 	map.addLayer({
@@ -197,41 +197,41 @@ const lastInnDataFraSupabase = async () => {
 		},
 	});
 
-	map.addLayer({
-		id: "church-clusters",
-		type: "circle",
-		source: CONSTS.CHURCH_SOURCE,
-		filter: ["has", "point_count"],
-		paint: {
-			"circle-color": [
-				"step",
-				["get", "point_count"],
-				"#8B4513", // < 10
-				10,
-				"#DAA520", // 10-50
-				50,
-				"#4B0082", // > 50
-			],
-			"circle-radius": ["step", ["get", "point_count"], 20, 10, 30, 50, 40],
-			"circle-stroke-width": 1,
-			"circle-stroke-color": "#fff",
-		},
-	});
+	// map.addLayer({
+	// 	id: "church-clusters",
+	// 	type: "circle",
+	// 	source: CONSTS.CHURCH_SOURCE,
+	// 	filter: ["has", "point_count"],
+	// 	paint: {
+	// 		"circle-color": [
+	// 			"step",
+	// 			["get", "point_count"],
+	// 			"#8B4513", // < 10
+	// 			10,
+	// 			"#DAA520", // 10-50
+	// 			50,
+	// 			"#4B0082", // > 50
+	// 		],
+	// 		"circle-radius": ["step", ["get", "point_count"], 20, 10, 30, 50, 40],
+	// 		"circle-stroke-width": 1,
+	// 		"circle-stroke-color": "#fff",
+	// 	},
+	// });
 
-	map.addLayer({
-		id: "church-cluster-count",
-		type: "symbol",
-		source: CONSTS.CHURCH_SOURCE,
-		filter: ["has", "point_count"],
-		layout: {
-			"text-field": ["get", "point_count"],
-			"text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
-			"text-size": 12,
-		},
-		paint: {
-			"text-color": "#fff",
-		},
-	});
+	// map.addLayer({
+	// 	id: "church-cluster-count",
+	// 	type: "symbol",
+	// 	source: CONSTS.CHURCH_SOURCE,
+	// 	filter: ["has", "point_count"],
+	// 	layout: {
+	// 		"text-field": ["get", "point_count"],
+	// 		"text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
+	// 		"text-size": 12,
+	// 	},
+	// 	paint: {
+	// 		"text-color": "#fff",
+	// 	},
+	// });
 };
 
 const installereEventer = () => {
@@ -300,7 +300,8 @@ const meny = async () => {
 		$resetFiltersButton = document.getElementById("reset-filters"),
 		$toggleToiletsButton = document.getElementById("toggle-toilets"),
 		$toggleChurchesButton = document.getElementById("toggle-churches"),
-		$toggleSoundButton = document.getElementById("toggle-sound");
+		$toggleSoundButton = document.getElementById("toggle-sound"),
+		$churchFilterSelect = document.getElementById("church-filter");
 
 	$filterHandicapLightButton.onclick = () => {
 		const filterExpression = ["==", ["get", "belysningInne"], "Ja"];
@@ -324,12 +325,12 @@ const meny = async () => {
 			visibility === "visible" ? "none" : "visible",
 		);
 
-		const clustersVisibility = map.getLayoutProperty("clusters", "visibility");
-		map.setLayoutProperty(
-			"clusters",
-			"visibility",
-			clustersVisibility === "visible" ? "none" : "visible",
-		);
+		// const clustersVisibility = map.getLayoutProperty("clusters", "visibility");
+		// map.setLayoutProperty(
+		// 	"clusters",
+		// 	"visibility",
+		// 	clustersVisibility === "visible" ? "none" : "visible",
+		// );
 
 		if (visibility === "visible") {
 			$toggleToiletsButton.textContent = "Vis Toaletter (T)";
@@ -348,15 +349,15 @@ const meny = async () => {
 			visibility === "visible" ? "none" : "visible",
 		);
 
-		const clustersVisibility = map.getLayoutProperty(
-			"church-clusters",
-			"visibility",
-		);
-		map.setLayoutProperty(
-			"church-clusters",
-			"visibility",
-			clustersVisibility === "visible" ? "none" : "visible",
-		);
+		// const clustersVisibility = map.getLayoutProperty(
+		// 	"church-clusters",
+		// 	"visibility",
+		// );
+		// map.setLayoutProperty(
+		// 	"church-clusters",
+		// 	"visibility",
+		// 	clustersVisibility === "visible" ? "none" : "visible",
+		// );
 
 		if (visibility === "visible") {
 			$toggleChurchesButton.textContent = "Vis Kirker (K)";
@@ -390,6 +391,23 @@ const meny = async () => {
 			case "m":
 				onToggleSound();
 				break;
+		}
+	};
+
+	FYLKER.forEach((fylke) => {
+		const option = document.createElement("option");
+		option.value = fylke;
+		option.textContent = fylke;
+		$churchFilterSelect.appendChild(option);
+	});
+
+	$churchFilterSelect.onchange = () => {
+		const selectedFylke = $churchFilterSelect.value;
+		if (selectedFylke) {
+			const filterExpression = ["==", ["get", "fylke"], selectedFylke];
+			map.setFilter(CONSTS.CHURCH_LAYER, filterExpression);
+		} else {
+			map.setFilter(CONSTS.CHURCH_LAYER, null);
 		}
 	};
 
