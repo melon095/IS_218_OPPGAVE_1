@@ -193,3 +193,37 @@ button:active {
 .hidden {
 	display: none;
 }
+
+#layer-control,
+#romlig-filter,
+#brannstasjon-section,
+#tilfluktsrom-section {
+	display: flex;
+	flex-direction: column;
+	gap: 0.6rem;
+	margin-bottom: 1.4rem;
+}
+
+label {
+	font-size: 0.9rem;
+	color: rgba(0, 60, 160, 0.85);
+	margin-bottom: -0.2rem;
+}
+
+select,
+input[type="number"] {
+	padding: 0.5rem 0.8rem;
+	border: 1px solid rgba(101, 182, 255, 0.5);
+	border-radius: 8px;
+	font-size: 0.95rem;
+	background: rgba(245, 251, 255, 0.9);
+	color: rgba(0, 60, 160, 1);
+	cursor: pointer;
+	outline: none;
+	transition: box-shadow 0.2s ease;
+}
+
+select:focus,
+input[type="number"]:focus {
+	box-shadow: 0 0 0 3px rgba(101, 182, 255, 0.4);
+}
