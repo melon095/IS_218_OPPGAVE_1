@@ -26,6 +26,13 @@ const map = new maplibregl.Map({
 });
 globalThis.map = map;
 
+const SUPABASE = {
+	API_KEY: "sb_publishable__M6fyGnAyEymqPV0JAj9TA_pvdG3Tx8",
+	BASE_URL: "https://deobegwgsvlzqzpidpqq.supabase.co/rest/v1/",
+	SCHEMA: "public",
+	TABLE: "kirker",
+};
+
 const CONSTS = {
 	TOILET_DATASET_PATH: "dataset/handikapp_toalett.geojson",
 	TOILET_SOURCE: "handikapp_toalett_source",
@@ -36,6 +43,24 @@ const CONSTS = {
 	CHURCH_LAYER: "church_layer",
 	CHURCH_LAYER_COLOR: "#d09206",
 };
+
+const FYLKER = [
+	"Akershus",
+	"Oslo",
+	"Vestland",
+	"Rogaland",
+	"Trøndelag",
+	"Innlandet",
+	"Agder",
+	"Østfold",
+	"Møre og Romsdal",
+	"Buskerud",
+	"Vestfold",
+	"Nordland",
+	"Telemark",
+	"Troms",
+	"Finnmark",
+];
 
 const lastInnDataFraGeoJSON = async () => {
 	try {
@@ -96,67 +121,117 @@ const lastInnDataFraGeoJSON = async () => {
 				"text-color": "#fff",
 			},
 		});
-
-		const churchData = await fetch(CONSTS.CHURCH_DATASET_PATH).then((res) =>
-			res.json(),
-		);
-
-		map.addSource(CONSTS.CHURCH_SOURCE, {
-			type: "geojson",
-			data: churchData,
-			cluster: true,
-		});
-
-		map.addLayer({
-			id: CONSTS.CHURCH_LAYER,
-			source: CONSTS.CHURCH_SOURCE,
-			type: "circle",
-			paint: {
-				"circle-radius": 6,
-				"circle-color": CONSTS.CHURCH_LAYER_COLOR,
-				"circle-stroke-width": 2,
-				"circle-stroke-color": "#ffffff",
-			},
-		});
-
-		map.addLayer({
-			id: "church-clusters",
-			type: "circle",
-			source: CONSTS.CHURCH_SOURCE,
-			filter: ["has", "point_count"],
-			paint: {
-				"circle-color": [
-					"step",
-					["get", "point_count"],
-					"#8B4513", // < 10
-					10,
-					"#DAA520", // 10-50
-					50,
-					"#4B0082", // > 50
-				],
-				"circle-radius": ["step", ["get", "point_count"], 20, 10, 30, 50, 40],
-				"circle-stroke-width": 1,
-				"circle-stroke-color": "#fff",
-			},
-		});
-
-		map.addLayer({
-			id: "church-cluster-count",
-			type: "symbol",
-			source: CONSTS.CHURCH_SOURCE,
-			filter: ["has", "point_count"],
-			layout: {
-				"text-field": ["get", "point_count"],
-				"text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
-				"text-size": 12,
-			},
-			paint: {
-				"text-color": "#fff",
-			},
-		});
 	} catch (error) {
 		console.error("Feil under lasting av data fra GeoJSON:", error);
 	}
+};
+
+const lastInnDataFraSupabase = async () => {
+	const churchData = await fetch(
+		`${SUPABASE.BASE_URL}${SUPABASE.TABLE}?select=*`,
+		{
+			headers: {
+				apiKey: SUPABASE.API_KEY,
+				"Accept-Profile": SUPABASE.SCHEMA,
+			},
+			method: "GET",
+		},
+	)
+		.then((res) => res.json())
+		.then((raw) => {
+			const features = [];
+
+			raw.forEach((plass) => {
+				const {
+					geometryproperty,
+					bygningsnavn,
+					adressenavn,
+					postnummer,
+					poststed,
+					kommune,
+					fylke,
+				} = plass;
+
+				const [x, y] = geometryproperty.coordinates;
+
+				const geojson = {
+					type: "Feature",
+					geometry: {
+						type: "Point",
+						coordinates: [x, y],
+					},
+					properties: {
+						bygningsnavn,
+						adressenavn,
+						postnummer,
+						poststed,
+						kommune,
+						fylke,
+					},
+				};
+
+				features.push(geojson);
+			});
+
+			return features;
+		});
+
+	map.addSource(CONSTS.CHURCH_SOURCE, {
+		type: "geojson",
+		data: {
+			type: "FeatureCollection",
+			features: churchData,
+		},
+		cluster: true,
+	});
+
+	map.addLayer({
+		id: CONSTS.CHURCH_LAYER,
+		source: CONSTS.CHURCH_SOURCE,
+		type: "circle",
+		paint: {
+			"circle-radius": 6,
+			"circle-color": CONSTS.CHURCH_LAYER_COLOR,
+			"circle-stroke-width": 2,
+			"circle-stroke-color": "#ffffff",
+		},
+	});
+
+	map.addLayer({
+		id: "church-clusters",
+		type: "circle",
+		source: CONSTS.CHURCH_SOURCE,
+		filter: ["has", "point_count"],
+		paint: {
+			"circle-color": [
+				"step",
+				["get", "point_count"],
+				"#8B4513", // < 10
+				10,
+				"#DAA520", // 10-50
+				50,
+				"#4B0082", // > 50
+			],
+			"circle-radius": ["step", ["get", "point_count"], 20, 10, 30, 50, 40],
+			"circle-stroke-width": 1,
+			"circle-stroke-color": "#fff",
+		},
+	});
+
+	map.addLayer({
+		id: "church-cluster-count",
+		type: "symbol",
+		source: CONSTS.CHURCH_SOURCE,
+		filter: ["has", "point_count"],
+		layout: {
+			"text-field": ["get", "point_count"],
+			"text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
+			"text-size": 12,
+		},
+		paint: {
+			"text-color": "#fff",
+		},
+	});
 };
 
 const installereEventer = () => {
@@ -323,8 +398,9 @@ const meny = async () => {
 };
 
 map.on("load", async () => {
-	await lastInnDataFraGeoJSON();
+	await Promise.all([lastInnDataFraGeoJSON(), lastInnDataFraSupabase()]);
 	installereEventer();
+	await meny();
 });
 
 let loadedMeny = false;
@@ -333,6 +409,6 @@ map.on("sourcedata", async (e) => {
 
 	if (e.sourceId === CONSTS.TOILET_SOURCE && e.isSourceLoaded) {
 		loadedMeny = true;
-		await meny();
+		// await meny();
 	}
 });
