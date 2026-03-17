@@ -6,6 +6,7 @@
     <title>IS-218 | Oppgave 1</title>
     <link href="https://unpkg.com/maplibre-gl@^5.16.0/dist/maplibre-gl.css" rel="stylesheet" />
     <link rel="stylesheet" href="./styles/index.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
     <div class="glass-card" id="layout">
@@ -17,6 +18,7 @@
                 <button id="toggle-tilfluktsrom" type="button" name="layer">Skjul Tilfluktsrom (T)</button>
                 <button id="toggle-sound" type="button" name="sound">Skru av lyd (M)</button>
                 <audio id="bird-sounds" src="lyder/birdsounds.mp3" loop autoplay></audio>
+                <button id="test-button">Test Query</button>
             </div>
 
             <div id="romlig-filter">

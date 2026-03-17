@@ -12,6 +12,13 @@ import {
 	tilfluktsromKapasitetsFilter,
 } from "./tilfluktsrom.mjs";
 
+import {
+	supabase,
+	testQuery
+} from "../Oppgave2-database/supabasekobling.mjs";
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("test-button").onclick = testQuery;
+});
 const map = new maplibregl.Map({
 	container: "map",
 	style: {
