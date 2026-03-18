@@ -3,16 +3,16 @@ const suppebaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 export const supabase = window.supabase.createClient(suppebaseUrl, suppebaseKey);
 
-export async function testQuery() {
-    const { data, error } = await supabase
-  .from("tilfluktsrom")
-  .select("plasser")
-  .eq("romnr", 777);
+export const hentTilfluktsromRadius = async (lng, lat, radius) => {
+    const {data, error} = await supabase.rpc(
+        "finn_tilfluktsrom",
+        {lng, lat, radius}
+    );
 
-if (error) {
-  console.error(error);
-} else {
-  console.log(data);
-}
-    
-}
+    if (error) {
+        console.error(error);
+        return[];
+    }
+
+    return data;
+};

@@ -12,13 +12,8 @@ import {
 	tilfluktsromKapasitetsFilter,
 } from "./tilfluktsrom.mjs";
 
-import {
-	supabase,
-	testQuery
-} from "../Oppgave2-database/supabasekobling.mjs";
-document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("test-button").onclick = testQuery;
-});
+import { installRadiusSok } from "../Oppgave2-database/sokRadius.mjs";
+
 const map = new maplibregl.Map({
 	container: "map",
 	style: {
@@ -291,6 +286,7 @@ map.on("load", async () => {
 
 	installBrannstasjonEventer(map);
 	installTilfluktsromEventer(map);
+	installRadiusSok(map);
 
 	meny(fylkeGeometrier);
 });
