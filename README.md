@@ -64,3 +64,9 @@ ogr2ogr -f "PostgreSQL" PG:"host=aws-1-eu-west-2.pooler.supabase.com dbname=post
 
 ## 6. Refleksjon
 Løsningen håndterer romlig filtrering i frontend, noe som fungerer godt for små datasett, men som kunne vært forbedret ved å bruke en romlig database for bedre ytelse og skalerbarhet. Bruken av WMS som bakgrunnskart gir god kartkvalitet, men vektorfliser kunne gitt bedre ytelse og mer fleksibel styling. Brukergrensesnittet kunne vært videreutviklet med tydeligere tilbakemeldinger og mer avanserte filtervalg. Videre kunne datamodellen vært utvidet med flere attributter for å støtte mer detaljerte analyser. I en mer komplett løsning kunne også autentisering og dynamisk oppdatering av data vært aktuelt.
+
+
+## Oppgave 2
+
+## 1. Utvidelsen
+Utvidelsen til oppgaven lar brukeren velge en posisjon på kartet for å se hvor mange tilfluktsrom som er i nærheten. Denne funksjonen er gjort mulig av funksjonen finn_tilfluktsrom, som bruker PostGIS funksjoner for å beregne antall rom i SQL spørringen. Funksjonen blir kallt opp i sokRadius.mjs som også sørger for å lage visuelt feedback til brukeren, som skjer både i menyen, og som en markør på kartet. Dersom det er flere tilfluktsrom enn det er plass på en markør, vil det være mulig å scrolle gjennom dem. Dette gjør at brukeren ikke må dra på kartet for å kunne se informasjonen.
