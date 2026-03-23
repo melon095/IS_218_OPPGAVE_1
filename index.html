@@ -7,6 +7,7 @@
     <link href="https://unpkg.com/maplibre-gl@^5.16.0/dist/maplibre-gl.css" rel="stylesheet" />
     <link rel="stylesheet" href="./styles/index.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
 </head>
 <body>
     <div class="glass-card" id="layout">
@@ -21,8 +22,9 @@
             </div>
             <div id="tilfluktsrom-prox">
                 <h2>Tilfluktsrom i nærhet</h2>
-                <p>Trykk på kartet for å finne tilfluktsrom innen 1 km</p>
-                <div id="tilflukts-prox-resultat"></div>
+                <div id="tilflukts-prox-resultat">
+                    <p>Trykk på kartet for å finne tilfluktsrom innen 1 km</p>
+                </div>
             </div>
             <div id="romlig-filter">
                 <h2>Romlig filtrering</h2>

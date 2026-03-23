@@ -2,10 +2,43 @@ import { hentTilfluktsromRadius } from "./supabasekobling.mjs";
 
 export const installRadiusSok = (map) => {
     let selectMarker = null;
+    let activePopup = null;
+
+    const clearObjects = () => {
+        if (map.getLayer("radius-resultat-layer")) {
+            map.removeLayer("radius-resultat-layer");
+        }
+        
+        if (map.getSource("radius-resultat-source")) {
+            map.removeSource("radius-resultat-source");
+        }
+
+        if(map.getLayer("radius-circle-fill")) {
+            map.removeLayer("radius-circle-fill");
+        }
+
+        if(map.getLayer("radius-circle-line")) {
+            map.removeLayer("radius-circle-line");
+        }
+
+        if(map.getSource("radpos-source")) {
+            map.removeSource("radpos-source");
+        }
+
+        const proxResultat = document.getElementById("tilflukts-prox-resultat");
+        proxResultat.innerHTML = "<p>Trykk på kartet for å finne tilfluktsrom innen 1 km</p>";
+    }
 
     map.on("click", async (pos) => {
         const proxResultat = document.getElementById("tilflukts-prox-resultat");
         const {lng, lat} = pos.lngLat;
+
+        if (activePopup) {
+            activePopup.remove();
+            activePopup = null;
+        }
+
+        clearObjects();
 
         if (selectMarker) {
             selectMarker.remove();
@@ -18,19 +51,66 @@ export const installRadiusSok = (map) => {
         selectMarker = new maplibregl.Marker({ element: remMarker })
             .setLngLat([lng, lat])
             .addTo(map);
-        
+
+        const posRadius = turf.circle([lng, lat], 1, {
+            steps: 64,
+            units: "kilometers",
+        });
+
+        if (map.getSource("radpos-source")) {
+            map.getSource("radpos-source").setData(posRadius);
+        }
+        else {
+            map.addSource("radpos-source", {
+                type: "geojson",
+                data: posRadius,
+            });
+
+            map.addLayer({
+                id: "radius-circle-fill",
+                type: "fill",
+                source: "radpos-source",
+                paint: {
+                    "fill-color": "#395248",
+                    "fill-opacity": 0.1
+                },
+            });
+
+            map.addLayer({
+                id: "radius-circle-line",
+                type: "line",
+                source: "radpos-source",
+                paint: {
+                    "line-color": "#cff0ff",
+                    "line-width": 2,
+                }
+            });
+        }
+
         proxResultat.innerHTML = `
-            <p><strong>Det er ingen tilfluktsrom innen 1 km</strong><br/>
+            <p><strong>Det er ingen tilfluktsrom innen 1 km</strong><br/></p>
         `;
-
-
         const tilfluktsData = await hentTilfluktsromRadius(lng, lat, 1000);
         
         if (!tilfluktsData || tilfluktsData.length === 0) {
-            new maplibregl.Popup()
+            proxResultat.innerHTML = `
+                <strong>Ingen tilfluktsrom innen 1 km</strong>
+            `
+            activePopup = new maplibregl.Popup()
                 .setLngLat([lng, lat])
                 .setHTML("<strong>Ingen tilfluktsrom innen 1 km</strong>")
                 .addTo(map);
+            
+            activePopup.on("close", () => {
+                clearObjects();
+
+                if(selectMarker) {
+                    selectMarker.remove();
+                    selectMarker = null;
+                }
+
+                activePopup = null;
+            });
             return;
         }
 
@@ -90,7 +170,8 @@ export const installRadiusSok = (map) => {
                         .join("")}
             </ul>
         `;
-        new maplibregl.Popup({ maxWidth: "300px"})
+
+        activePopup = new maplibregl.Popup({ maxWidth: "300px"})
             .setLngLat([lng, lat])
             .setHTML(
                 `<div class="scroll-popup">
@@ -110,5 +191,15 @@ export const installRadiusSok = (map) => {
                 </div>`
             )
             .addTo(map);
+
+            activePopup.on("close", () => {
+                clearObjects();
+
+                if (selectMarker) {
+                    selectMarker.remove();
+                    selectMarker = null;
+                }
+            });
+        
     });
 };
