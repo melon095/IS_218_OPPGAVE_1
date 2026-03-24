@@ -1,205 +1,253 @@
 import { hentTilfluktsromRadius } from "./supabasekobling.mjs";
 
 export const installRadiusSok = (map) => {
-    let selectMarker = null;
-    let activePopup = null;
+	const MIN_RADIUS_M = 100;
+	const MAX_RADIUS_M = 10000;
+	const DEFAULT_RADIUS_M = 1000;
 
-    const clearObjects = () => {
-        if (map.getLayer("radius-resultat-layer")) {
-            map.removeLayer("radius-resultat-layer");
-        }
-        
-        if (map.getSource("radius-resultat-source")) {
-            map.removeSource("radius-resultat-source");
-        }
+	let selectMarker = null;
+	let activePopup = null;
 
-        if(map.getLayer("radius-circle-fill")) {
-            map.removeLayer("radius-circle-fill");
-        }
+	const formatRadius = (radius) => {
+		if (radius >= 1000) {
+			const km = radius / 1000;
+			const kmTekst = Number.isInteger(km) ? String(km) : km.toFixed(1);
+			return `${kmTekst} km`;
+		}
 
-        if(map.getLayer("radius-circle-line")) {
-            map.removeLayer("radius-circle-line");
-        }
+		return `${radius} m`;
+	};
 
-        if(map.getSource("radpos-source")) {
-            map.removeSource("radpos-source");
-        }
+	const validerRadius = (value) => {
+		const parsed = Number(value);
 
-        const proxResultat = document.getElementById("tilflukts-prox-resultat");
-        proxResultat.innerHTML = "<p>Trykk på kartet for å finne tilfluktsrom innen 1 km</p>";
-    }
+		if (!Number.isFinite(parsed)) {
+			return {
+				gyldig: false,
+				melding: "Radius må være et tall mellom 100 m og 10 km.",
+			};
+		}
 
-    map.on("click", async (pos) => {
-        const proxResultat = document.getElementById("tilflukts-prox-resultat");
-        const {lng, lat} = pos.lngLat;
+		if (parsed < MIN_RADIUS_M || parsed > MAX_RADIUS_M) {
+			return {
+				gyldig: false,
+				melding: "Radius må være mellom 100 m og 10 km.",
+			};
+		}
 
-        if (activePopup) {
-            activePopup.remove();
-            activePopup = null;
-        }
+		return { gyldig: true, radius: Math.round(parsed) };
+	};
 
-        clearObjects();
+	const clearObjects = () => {
+		if (map.getLayer("radius-resultat-layer")) {
+			map.removeLayer("radius-resultat-layer");
+		}
 
-        if (selectMarker) {
-            selectMarker.remove();
-        }
+		if (map.getSource("radius-resultat-source")) {
+			map.removeSource("radius-resultat-source");
+		}
 
-        const remMarker = document.createElement("div");
-        remMarker.style.width = "0px";
-        remMarker.style.height = "0px";
+		if (map.getLayer("radius-circle-fill")) {
+			map.removeLayer("radius-circle-fill");
+		}
 
-        selectMarker = new maplibregl.Marker({ element: remMarker })
-            .setLngLat([lng, lat])
-            .addTo(map);
+		if (map.getLayer("radius-circle-line")) {
+			map.removeLayer("radius-circle-line");
+		}
 
-        const posRadius = turf.circle([lng, lat], 1, {
-            steps: 64,
-            units: "kilometers",
-        });
+		if (map.getSource("radpos-source")) {
+			map.removeSource("radpos-source");
+		}
 
-        if (map.getSource("radpos-source")) {
-            map.getSource("radpos-source").setData(posRadius);
-        }
-        else {
-            map.addSource("radpos-source", {
-                type: "geojson",
-                data: posRadius,
-            });
+		const proxResultat = document.getElementById("tilflukts-prox-resultat");
+		proxResultat.innerHTML = `<p>Trykk på kartet for å finne tilfluktsrom innen ${formatRadius(DEFAULT_RADIUS_M)}</p>`;
+	};
 
-            map.addLayer({
-                id: "radius-circle-fill",
-                type: "fill",
-                source: "radpos-source",
-                paint: {
-                    "fill-color": "#395248",
-                    "fill-opacity": 0.1
-                },
-            });
+	map.on("click", async (pos) => {
+		const proxResultat = document.getElementById("tilflukts-prox-resultat");
+		const radiusInput = document.getElementById("radius-input");
+		const radiusValidering = validerRadius(radiusInput?.value);
 
-            map.addLayer({
-                id: "radius-circle-line",
-                type: "line",
-                source: "radpos-source",
-                paint: {
-                    "line-color": "#cff0ff",
-                    "line-width": 2,
-                }
-            });
-        }
+		if (!radiusValidering.gyldig) {
+			proxResultat.innerHTML = `<p><strong>${radiusValidering.melding}</strong></p>`;
+			if (radiusInput) {
+				radiusInput.setCustomValidity(radiusValidering.melding);
+				radiusInput.reportValidity();
+			}
+			return;
+		}
 
-        proxResultat.innerHTML = `
-            <p><strong>Det er ingen tilfluktsrom innen 1 km</strong><br/></p>
-        `;
-        const tilfluktsData = await hentTilfluktsromRadius(lng, lat, 1000);
-        
-        if (!tilfluktsData || tilfluktsData.length === 0) {
-            proxResultat.innerHTML = `
-                <strong>Ingen tilfluktsrom innen 1 km</strong>
-            `
-            activePopup = new maplibregl.Popup()
-                .setLngLat([lng, lat])
-                .setHTML("<strong>Ingen tilfluktsrom innen 1 km</strong>")
-                .addTo(map);
-            
-            activePopup.on("close", () => {
-                clearObjects();
+		radiusInput.setCustomValidity("");
+		radiusInput.value = String(radiusValidering.radius);
 
-                if(selectMarker) {
-                    selectMarker.remove();
-                    selectMarker = null;
-                }
+		const radius = radiusValidering.radius;
+		const radiusText = formatRadius(radius);
+		const { lng, lat } = pos.lngLat;
 
-                activePopup = null;
-            });
-            return;
-        }
+		if (activePopup) {
+			activePopup.remove();
+			activePopup = null;
+		}
 
-        const features = tilfluktsData.map((rad) => ({
-            type: "Feature",
-            geometry: {
-                type: "Point",
-                coordinates: rad.posisjon.coordinates,
-            },
-            properties: {
-                romnr: rad.romnr,
-                plasser: rad.plasser,
-                adresse: rad.adresse,
-            },
-        }));
+		clearObjects();
 
-        if (map.getSource("radius-resultat-source")) {
-            map.getSource("radius-resultat-source").setData({
-                type: "FeatureCollection",
-                features,
-        });
-        }
-        else {
-            map.addSource("radius-resultat-source", {
-                type: "geojson",
-                data: {
-                    type: "FeatureCollection",
-                    features,
-                },
-            });
+		if (selectMarker) {
+			selectMarker.remove();
+		}
 
-            map.addLayer({
-                id: "radius-resultat-layer",
-                type: "circle",
-                source: "radius-resultat-source",
-                paint: {
-                    "circle-radius": 9,
-                    "circle-color": "#ADD8E6",
-                    "circle-stroke-width": 2,
-                    "circle-stroke-color": "white"
-                },
-            });
-        }
+		const remMarker = document.createElement("div");
+		remMarker.style.width = "0px";
+		remMarker.style.height = "0px";
 
-        proxResultat.innerHTML = `
+		selectMarker = new maplibregl.Marker({ element: remMarker })
+			.setLngLat([lng, lat])
+			.addTo(map);
+
+		const posRadius = turf.circle([lng, lat], radius, {
+			steps: 64,
+			units: "metres",
+		});
+
+		if (map.getSource("radpos-source")) {
+			map.getSource("radpos-source").setData(posRadius);
+		} else {
+			map.addSource("radpos-source", {
+				type: "geojson",
+				data: posRadius,
+			});
+
+			map.addLayer({
+				id: "radius-circle-fill",
+				type: "fill",
+				source: "radpos-source",
+				paint: {
+					"fill-color": "#395248",
+					"fill-opacity": 0.1,
+				},
+			});
+
+			map.addLayer({
+				id: "radius-circle-line",
+				type: "line",
+				source: "radpos-source",
+				paint: {
+					"line-color": "#cff0ff",
+					"line-width": 2,
+				},
+			});
+		}
+
+		proxResultat.innerHTML = `<p><strong>Søker etter tilfluktsrom innen ${radiusText}...</strong></p>`;
+		const tilfluktsData = await hentTilfluktsromRadius(lng, lat, radius);
+
+		if (!tilfluktsData || tilfluktsData.length === 0) {
+			proxResultat.innerHTML = `
+                <strong>Ingen tilfluktsrom innen ${radiusText}</strong>
+            `;
+			activePopup = new maplibregl.Popup()
+				.setLngLat([lng, lat])
+				.setHTML(`<strong>Ingen tilfluktsrom innen ${radiusText}</strong>`)
+				.addTo(map);
+
+			activePopup.on("close", () => {
+				clearObjects();
+
+				if (selectMarker) {
+					selectMarker.remove();
+					selectMarker = null;
+				}
+
+				activePopup = null;
+			});
+			return;
+		}
+
+		const features = tilfluktsData.map((rad) => ({
+			type: "Feature",
+			geometry: {
+				type: "Point",
+				coordinates: rad.posisjon.coordinates,
+			},
+			properties: {
+				romnr: rad.romnr,
+				plasser: rad.plasser,
+				adresse: rad.adresse,
+			},
+		}));
+
+		if (map.getSource("radius-resultat-source")) {
+			map.getSource("radius-resultat-source").setData({
+				type: "FeatureCollection",
+				features,
+			});
+		} else {
+			map.addSource("radius-resultat-source", {
+				type: "geojson",
+				data: {
+					type: "FeatureCollection",
+					features,
+				},
+			});
+
+			map.addLayer({
+				id: "radius-resultat-layer",
+				type: "circle",
+				source: "radius-resultat-source",
+				paint: {
+					"circle-radius": 9,
+					"circle-color": "#ADD8E6",
+					"circle-stroke-width": 2,
+					"circle-stroke-color": "white",
+				},
+			});
+		}
+
+		proxResultat.innerHTML = `
             <p><strong>Det er ${tilfluktsData.length} tilfluktsrom i nærheten</strong></p>
             <ul>
                 ${tilfluktsData
-                        .map((rad) => `
+									.map(
+										(rad) => `
                                 <li>
                                     Romnummer: ${rad.romnr},
                                     Plass: ${rad.plasser} mennesker,
                                     Adresse: ${rad.adresse}
                                 </li>
                             `,
-                        )
-                        .join("")}
+									)
+									.join("")}
             </ul>
         `;
 
-        activePopup = new maplibregl.Popup({ maxWidth: "300px"})
-            .setLngLat([lng, lat])
-            .setHTML(
-                `<div class="scroll-popup">
-                <strong>${features.length} tilfluktsrom innen 1 km</strong>
+		activePopup = new maplibregl.Popup({ maxWidth: "300px" })
+			.setLngLat([lng, lat])
+			.setHTML(
+				`<div class="scroll-popup">
+                <strong>${features.length} tilfluktsrom innen ${radiusText}</strong>
                     <ul>
                         ${tilfluktsData
-                            .map((rad) => `
+													.map(
+														(rad) => `
                                 <li>
                                     Romnummer: ${rad.romnr},
                                     Plass: ${rad.plasser} mennesker,
                                     Adresse: ${rad.adresse}
                                 </li>
                             `,
-                        )
-                        .join("")}
+													)
+													.join("")}
                     </ul>
-                </div>`
-            )
-            .addTo(map);
+                </div>`,
+			)
+			.addTo(map);
 
-            activePopup.on("close", () => {
-                clearObjects();
+		activePopup.on("close", () => {
+			clearObjects();
 
-                if (selectMarker) {
-                    selectMarker.remove();
-                    selectMarker = null;
-                }
-            });
-        
-    });
+			if (selectMarker) {
+				selectMarker.remove();
+				selectMarker = null;
+			}
+		});
+	});
 };
