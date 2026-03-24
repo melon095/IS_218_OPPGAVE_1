@@ -252,9 +252,21 @@ export const installRadiusSok = (map) => {
 		});
 	});
 
-	radiusInput.addEventListener("input", function () {
+	const radiusValueUpdate = () => {
+		if (!validerRadius(radiusInput.value).gyldig) {
+			radiusInput.setCustomValidity(
+				"Radius må være et tall mellom 100 m og 10 km.",
+			);
+			radiusInput.reportValidity();
+		} else {
+			radiusInput.setCustomValidity("");
+		}
+
 		document.getElementById("radius-value").textContent = formatRadius(
-			this.value,
+			radiusInput.value || DEFAULT_RADIUS_M,
 		);
-	});
+	};
+
+	radiusInput.addEventListener("input", radiusValueUpdate);
+	radiusInput.addEventListener("change", radiusValueUpdate);
 };
