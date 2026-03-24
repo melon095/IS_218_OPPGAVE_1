@@ -5,6 +5,8 @@ export const installRadiusSok = (map) => {
 	const MAX_RADIUS_M = 10000;
 	const DEFAULT_RADIUS_M = 1000;
 
+	const radiusInput = document.getElementById("radius-input");
+
 	let selectMarker = null;
 	let activePopup = null;
 
@@ -65,7 +67,6 @@ export const installRadiusSok = (map) => {
 
 	map.on("click", async (pos) => {
 		const proxResultat = document.getElementById("tilflukts-prox-resultat");
-		const radiusInput = document.getElementById("radius-input");
 		const radiusValidering = validerRadius(radiusInput?.value);
 
 		if (!radiusValidering.gyldig) {
@@ -249,5 +250,11 @@ export const installRadiusSok = (map) => {
 				selectMarker = null;
 			}
 		});
+	});
+
+	radiusInput.addEventListener("input", function () {
+		document.getElementById("radius-value").textContent = formatRadius(
+			this.value,
+		);
 	});
 };
