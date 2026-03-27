@@ -99,8 +99,7 @@ $$ LANGUAGE sql;
 ```
 
 ### Video
-
-
+https://github.com/user-attachments/assets/b6126059-9991-4c9d-8188-8a5716618e5b
 
 ## Romlig analyse ved hjelp av Jupyter Notebook
 I tillegg til utvidelsen av webkartet, har vi også utført en romlig analyse ved hjelp av Jupyter Notebook. Analysen fokuserte på å undersøke forholdet mellom tilfluktsrom og befolkningstetthet i Norge. Vi brukte data om befolkningstetthet fra Statistisk sentralbyrå (SSB) og data om tilfluktsrom fra Kartverket. Vi brukte Python-biblioteker som GeoPandas og Matplotlib for å visualisere resultatatene. Analysen viste at det er en tendens til at områder med høy befolkningstetthet har flere tilfluktsrom, men det er også noen unntak, spesielt i mer rurale områder. Dette kan indikere at det er behov for å vurdere plasseringen av tilfluktsrom i forhold til befolkningstetthet for å sikre at de er tilgjengelige for de som trenger dem mest. Videre analyser kunne inkludert faktorer som avstand til nærmeste tilfluktsrom og tilgjengelighet for personer med nedsatt mobilitet.
