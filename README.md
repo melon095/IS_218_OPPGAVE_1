@@ -1,6 +1,7 @@
-# IS 218 Oppgave 1 - Gruppe 6
+# IS 218 Oppgave - Gruppe 6
 
-- [IS 218 Oppgave 1 - Gruppe 6](#is-218-oppgave-1---gruppe-6)
+- [IS 218 Oppgave - Gruppe 6](#is-218-oppgave---gruppe-6)
+- [Oppgave 1](#oppgave-1)
   - [1. Hva kartet løser](#1-hva-kartet-løser)
   - [2. Demo av system](#2-demo-av-system)
   - [3. Teknisk stack](#3-teknisk-stack)
@@ -8,6 +9,9 @@
     - [4.1 Filtreringsmuligheter](#41-filtreringsmuligheter)
   - [5. Arkitektur og dataflyt](#5-arkitektur-og-dataflyt)
   - [6. Refleksjon](#6-refleksjon)
+- [Oppgave 2](#oppgave-2)
+
+# Oppgave 1
 
 ## 1. Hva kartet løser
 Kartløsningen visualiserer to beredskaps-datasett over hele Norge: **offentlige tilfluktsrom** og **brannstasjoner**. Brukeren kan filtrere innholdet romlig per fylke (basert på offisielle grenser fra Kartverket), i tillegg til attributtbaserte filtre for hvert datasett. Interaktive kontroller lar brukeren skru lag av og på, og klikk på punkter viser detaljert informasjon i popup-vinduer.
