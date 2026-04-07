@@ -17,6 +17,7 @@
                 <h2>Kartlag</h2>
                 <button id="toggle-brannstasjoner" type="button" name="layer">Skjul Brannstasjoner (B)</button>
                 <button id="toggle-tilfluktsrom" type="button" name="layer">Skjul Tilfluktsrom (T)</button>
+                <button id="toggle-befolkning" type="button" name="layer">Skjul Befolkning (P)</button>
                 <button id="toggle-sound" type="button" name="sound">Skru av lyd (M)</button>
                 <audio id="bird-sounds" src="lyder/birdsounds.mp3" loop autoplay></audio>
             </div>
@@ -53,6 +54,21 @@
                 <label for="min-plasser">Minimum antall plasser</label>
                 <input  id="min-plasser" type="number" min="0" step="50" placeholder="f.eks. 200" />
                 <button id="reset-tifl-filter" type="button">Tilbakestill kapasitet</button>
+            </div>
+
+            <div id="befolkning-section">
+                <h2>Befolkningstetthet</h2>
+                <label for="min-befolkning">Minimum befolkning</label>
+                <input id="min-befolkning" type="number" min="0" step="10" placeholder="f.eks. 100" />
+                <button id="reset-bef-filter" type="button">Tilbakestill filter</button>
+                <div id="befolkning-legende">
+                    <p><strong>Fargeskala:</strong></p>
+                    <div class="legende-item"><span style="background: #ffffcc"></span> 1-10 personer</div>
+                    <div class="legende-item"><span style="background: #fed976"></span> 25-50 personer</div>
+                    <div class="legende-item"><span style="background: #fd8d3c"></span> 100-200 personer</div>
+                    <div class="legende-item"><span style="background: #e31a1c"></span> 500-1000 personer</div>
+                    <div class="legende-item"><span style="background: #800026"></span> 2000+ personer</div>
+                </div>
             </div>
 
         </aside>

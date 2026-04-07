@@ -1,18 +1,22 @@
+import { installRadiusSok } from "../Oppgave2-database/sokRadius.mjs";
 import {
 	BRANNSTASJON,
 	brannstasjonStasjonstypeFilter,
 	installBrannstasjonEventer,
 	lastInnBrannstasjoner,
 } from "./brannstasjon.mjs";
-
 import {
 	installTilfluktsromEventer,
 	lastInnTilfluktsrom,
 	TILFLUKTSROM,
 	tilfluktsromKapasitetsFilter,
 } from "./tilfluktsrom.mjs";
-
-import { installRadiusSok } from "../Oppgave2-database/sokRadius.mjs";
+import {
+	BEFOLKNING,
+	befolkningMinFilter,
+	installBefolkningEventer,
+	lastInnBefolkning,
+} from "./befolkning.mjs";
 
 const map = new maplibregl.Map({
 	container: "map",
@@ -108,6 +112,7 @@ const filterState = {
 	fylkeGeometri: null,
 	brannstasjonType: "",
 	tilfluktsromMinPlasser: "",
+	befolkningMinPop: "",
 };
 
 const byggFilter = (parts) => {
@@ -139,9 +144,22 @@ const oppdaterTilfluktsromFilter = () => {
 	map.setFilter(TILFLUKTSROM.LAYER, filter);
 };
 
+const oppdaterBefolkningFilter = () => {
+	const parts = [
+		fylkeFilter(filterState.fylkeGeometri),
+		befolkningMinFilter(filterState.befolkningMinPop),
+	].filter(Boolean);
+
+	const filter = byggFilter(parts);
+
+	map.setFilter(BEFOLKNING.LAYER, filter);
+	map.setFilter(BEFOLKNING.LAYER_OUTLINE, filter);
+};
+
 const oppdaterAlleFiltre = () => {
 	oppdaterBrannstasjonFilter();
 	oppdaterTilfluktsromFilter();
+	oppdaterBefolkningFilter();
 };
 
 const meny = (fylkeGeometrier) => {
@@ -149,6 +167,7 @@ const meny = (fylkeGeometrier) => {
 
 	const $toggleBrannBtn = document.getElementById("toggle-brannstasjoner");
 	const $toggleTilflBtn = document.getElementById("toggle-tilfluktsrom");
+	const $toggleBefolkningBtn = document.getElementById("toggle-befolkning");
 	const $toggleSoundBtn = document.getElementById("toggle-sound");
 
 	const $fylkeSelect = document.getElementById("fylke-filter");
@@ -159,6 +178,9 @@ const meny = (fylkeGeometrier) => {
 
 	const $minPlasserInput = document.getElementById("min-plasser");
 	const $resetTilflBtn = document.getElementById("reset-tifl-filter");
+
+	const $minBefolkningInput = document.getElementById("min-befolkning");
+	const $resetBefolkningBtn = document.getElementById("reset-bef-filter");
 
 	const sorterteNavn = Object.keys(fylkeGeometrier).sort();
 	if (sorterteNavn.length === 0) {
@@ -227,12 +249,35 @@ const meny = (fylkeGeometrier) => {
 		oppdaterTilfluktsromFilter();
 	};
 
+	$minBefolkningInput.oninput = () => {
+		filterState.befolkningMinPop = $minBefolkningInput.value;
+		oppdaterBefolkningFilter();
+	};
+
+	$resetBefolkningBtn.onclick = () => {
+		filterState.befolkningMinPop = "";
+		$minBefolkningInput.value = "";
+		oppdaterBefolkningFilter();
+	};
+
 	const toggleLayer = (layerId, button, visLabel, skjulLabel) => {
 		const vis = map.getLayoutProperty(layerId, "visibility");
 		const nyVisibility = vis === "visible" ? "none" : "visible";
 
 		map.setLayoutProperty(layerId, "visibility", nyVisibility);
 		button.textContent = nyVisibility === "visible" ? skjulLabel : visLabel;
+	};
+
+	const toggleBefolkningLayers = () => {
+		const vis = map.getLayoutProperty(BEFOLKNING.LAYER, "visibility");
+		const nyVisibility = vis === "visible" ? "none" : "visible";
+
+		map.setLayoutProperty(BEFOLKNING.LAYER, "visibility", nyVisibility);
+		map.setLayoutProperty(BEFOLKNING.LAYER_OUTLINE, "visibility", nyVisibility);
+		$toggleBefolkningBtn.textContent =
+			nyVisibility === "visible"
+				? "Skjul Befolkning (P)"
+				: "Vis Befolkning (P)";
 	};
 
 	$toggleBrannBtn.onclick = () =>
@@ -250,6 +295,8 @@ const meny = (fylkeGeometrier) => {
 			"Vis Tilfluktsrom (T)",
 			"Skjul Tilfluktsrom (T)",
 		);
+
+	$toggleBefolkningBtn.onclick = toggleBefolkningLayers;
 
 	const onToggleSound = () => {
 		if (audio.paused) {
@@ -270,6 +317,9 @@ const meny = (fylkeGeometrier) => {
 			case "t":
 				$toggleTilflBtn.click();
 				break;
+			case "p":
+				toggleBefolkningLayers();
+				break;
 			case "m":
 				onToggleSound();
 				break;
@@ -280,10 +330,12 @@ const meny = (fylkeGeometrier) => {
 map.on("load", async () => {
 	const [fylkeGeometrier] = await Promise.all([
 		hentFylker(),
+		lastInnBefolkning(map),
 		lastInnBrannstasjoner(map),
 		lastInnTilfluktsrom(map),
 	]);
 
+	installBefolkningEventer(map);
 	installBrannstasjonEventer(map);
 	installTilfluktsromEventer(map);
 	installRadiusSok(map);

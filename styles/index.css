@@ -151,11 +151,44 @@ button:active {
 #layer-control,
 #romlig-filter,
 #brannstasjon-section,
-#tilfluktsrom-section {
+#tilfluktsrom-section,
+#befolkning-section {
 	display: flex;
 	flex-direction: column;
 	gap: 0.6rem;
 	margin-bottom: 1.4rem;
+}
+
+#befolkning-legende {
+	margin-top: 0.5rem;
+	padding: 0.8rem;
+	background: rgba(255, 255, 255, 0.5);
+	border-radius: 6px;
+	border: 1px solid rgba(101, 182, 255, 0.3);
+}
+
+#befolkning-legende p {
+	margin: 0 0 0.5rem 0;
+	font-size: 0.85rem;
+	font-weight: 600;
+	color: rgba(0, 60, 160, 0.9);
+}
+
+.legende-item {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.8rem;
+	margin-bottom: 0.3rem;
+	color: rgba(0, 60, 160, 0.85);
+}
+
+.legende-item span {
+	display: inline-block;
+	width: 30px;
+	height: 15px;
+	border-radius: 3px;
+	border: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 label {
