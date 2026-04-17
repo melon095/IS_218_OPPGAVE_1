@@ -10,54 +10,60 @@
     <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
 </head>
 <body>
+    <a class="skip-link" href="#map">Hopp til kartet</a>
     <div class="glass-card" id="layout">
-        <aside id="menu">
+        <aside id="menu" aria-label="Kartkontroller">
 
-            <div id="layer-control">
-                <h2>Kartlag</h2>
-                <button id="toggle-brannstasjoner" type="button" name="layer">Skjul Brannstasjoner (B)</button>
-                <button id="toggle-tilfluktsrom" type="button" name="layer">Skjul Tilfluktsrom (T)</button>
-                <button id="toggle-sound" type="button" name="sound">Skru av lyd (M)</button>
-                <audio id="bird-sounds" src="lyder/birdsounds.mp3" loop autoplay></audio>
-            </div>
-            <div id="tilfluktsrom-prox">
-                <h2>Tilfluktsrom i nærhet</h2>
+            <section id="layer-control" aria-labelledby="layer-control-title">
+                <h2 id="layer-control-title">Kartlag</h2>
+                <button id="toggle-tilfluktsrom" type="button" name="layer" aria-pressed="true" aria-keyshortcuts="T">Skjul Tilfluktsrom (T)</button>
+                <button id="toggle-befolkning" type="button" name="layer" aria-pressed="true" aria-keyshortcuts="P">Skjul Befolkning (P)</button>
+                <button id="toggle-sound" type="button" name="sound" aria-pressed="true" aria-keyshortcuts="M">Skru av lyd (M)</button>
+                <audio id="bird-sounds" src="lyder/birdsounds.mp3" loop autoplay aria-hidden="true"></audio>
+            </section>
+            <section id="tilfluktsrom-prox" aria-labelledby="tilfluktsrom-prox-title">
+                <h2 id="tilfluktsrom-prox-title">Tilfluktsrom i nærhet</h2>
                 <label for="radius-input">Radius (meter)</label>
-                <input id="radius-input" type="number" min="100" max="10000" step="100" value="1000" />
-                <div id="tilflukts-prox-resultat">
+                <input id="radius-input" type="number" min="100" max="10000" step="100" value="1000" inputmode="numeric" aria-describedby="radius-help radius-value" />
+                <p id="radius-help" class="assistive-text">Gyldig radius er mellom 100 meter og 10 kilometer.</p>
+                <div id="tilflukts-prox-resultat" role="status" aria-live="polite" aria-atomic="true">
                     <p>Trykk på kartet for å finne tilfluktsrom innen <span id="radius-value">1 km</span>.</p>
                 </div>
-            </div>
-            <div id="romlig-filter">
-                <h2>Romlig filtrering</h2>
+            </section>
+            <section id="romlig-filter" aria-labelledby="romlig-filter-title">
+                <h2 id="romlig-filter-title">Romlig filtrering</h2>
                 <label for="fylke-filter">Velg fylke</label>
                 <select id="fylke-filter">
                     <option value="">Alle fylker</option>
                 </select>
                 <button id="reset-fylke" type="button">Tilbakestill fylke</button>
-            </div>
+            </section>
 
-            <div id="brannstasjon-section">
-                <h2>Brannstasjoner</h2>
-                <label for="stasjonstype-filter">Stasjonstype</label>
-                <select id="stasjonstype-filter">
-                    <option value="">Alle typer</option>
-                    <option value="H">Hovedstasjon (H)</option>
-                    <option value="L">Lokal / underordnet (L)</option>
-                </select>
-                <button id="reset-brann-filter" type="button">Tilbakestill type</button>
-            </div>
-
-            <div id="tilfluktsrom-section">
-                <h2>Tilfluktsrom</h2>
+            <section id="tilfluktsrom-section" aria-labelledby="tilfluktsrom-title">
+                <h2 id="tilfluktsrom-title">Tilfluktsrom</h2>
                 <label for="min-plasser">Minimum antall plasser</label>
                 <input  id="min-plasser" type="number" min="0" step="50" placeholder="f.eks. 200" />
                 <button id="reset-tifl-filter" type="button">Tilbakestill kapasitet</button>
-            </div>
+            </section>
+
+            <section id="befolkning-section" aria-labelledby="befolkning-title">
+                <h2 id="befolkning-title">Befolkningstetthet</h2>
+                <label for="min-befolkning">Minimum befolkning</label>
+                <input id="min-befolkning" type="number" min="0" step="10" placeholder="f.eks. 100" />
+                <button id="reset-bef-filter" type="button">Tilbakestill filter</button>
+                <div id="befolkning-legende" role="group" aria-label="Fargeskala for befolkningstetthet">
+                    <p><strong>Fargeskala:</strong></p>
+                    <div class="legende-item"><span aria-hidden="true" style="background: #ffffcc"></span> 1-10 personer</div>
+                    <div class="legende-item"><span aria-hidden="true" style="background: #fed976"></span> 25-50 personer</div>
+                    <div class="legende-item"><span aria-hidden="true" style="background: #fd8d3c"></span> 100-200 personer</div>
+                    <div class="legende-item"><span aria-hidden="true" style="background: #e31a1c"></span> 500-1000 personer</div>
+                    <div class="legende-item"><span aria-hidden="true" style="background: #800026"></span> 2000+ personer</div>
+                </div>
+            </section>
 
         </aside>
 
-        <main id="map"></main>
+        <main id="map" role="region" aria-label="Interaktivt kart over Norge" aria-busy="true" tabindex="0"></main>
     </div>
 
     <script src="https://unpkg.com/maplibre-gl@^5.16.0/dist/maplibre-gl.js"></script>

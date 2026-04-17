@@ -122,8 +122,8 @@ export const installRadiusSok = (map) => {
 				type: "fill",
 				source: "radpos-source",
 				paint: {
-					"fill-color": "#395248",
-					"fill-opacity": 0.1,
+					"fill-color": "#0d5cab",
+					"fill-opacity": 0.16,
 				},
 			});
 
@@ -132,8 +132,8 @@ export const installRadiusSok = (map) => {
 				type: "line",
 				source: "radpos-source",
 				paint: {
-					"line-color": "#cff0ff",
-					"line-width": 2,
+					"line-color": "#0a4380",
+					"line-width": 2.5,
 				},
 			});
 		}
@@ -196,9 +196,9 @@ export const installRadiusSok = (map) => {
 				source: "radius-resultat-source",
 				paint: {
 					"circle-radius": 9,
-					"circle-color": "#ADD8E6",
+					"circle-color": "#0d5cab",
 					"circle-stroke-width": 2,
-					"circle-stroke-color": "white",
+					"circle-stroke-color": "#ffffff",
 				},
 			});
 		}

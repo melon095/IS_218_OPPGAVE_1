@@ -1,18 +1,16 @@
+import { installRadiusSok } from "../Oppgave2-database/sokRadius.mjs";
 import {
-	BRANNSTASJON,
-	brannstasjonStasjonstypeFilter,
-	installBrannstasjonEventer,
-	lastInnBrannstasjoner,
-} from "./brannstasjon.mjs";
-
+	BEFOLKNING,
+	befolkningMinFilter,
+	installBefolkningEventer,
+	lastInnBefolkning,
+} from "./befolkning.mjs";
 import {
 	installTilfluktsromEventer,
 	lastInnTilfluktsrom,
 	TILFLUKTSROM,
 	tilfluktsromKapasitetsFilter,
 } from "./tilfluktsrom.mjs";
-
-import { installRadiusSok } from "../Oppgave2-database/sokRadius.mjs";
 
 const map = new maplibregl.Map({
 	container: "map",
@@ -106,8 +104,8 @@ const hentFylker = async () => {
 const filterState = {
 	fylkeNavn: "",
 	fylkeGeometri: null,
-	brannstasjonType: "",
 	tilfluktsromMinPlasser: "",
+	befolkningMinPop: "",
 };
 
 const byggFilter = (parts) => {
@@ -115,17 +113,6 @@ const byggFilter = (parts) => {
 	if (parts.length === 1) return parts[0];
 
 	return ["all", ...parts];
-};
-
-const oppdaterBrannstasjonFilter = () => {
-	const parts = [
-		fylkeFilter(filterState.fylkeGeometri),
-		brannstasjonStasjonstypeFilter(filterState.brannstasjonType),
-	].filter(Boolean);
-
-	const filter = byggFilter(parts);
-
-	map.setFilter(BRANNSTASJON.LAYER, filter);
 };
 
 const oppdaterTilfluktsromFilter = () => {
@@ -139,26 +126,39 @@ const oppdaterTilfluktsromFilter = () => {
 	map.setFilter(TILFLUKTSROM.LAYER, filter);
 };
 
+const oppdaterBefolkningFilter = () => {
+	const parts = [
+		fylkeFilter(filterState.fylkeGeometri),
+		befolkningMinFilter(filterState.befolkningMinPop),
+	].filter(Boolean);
+
+	const filter = byggFilter(parts);
+
+	map.setFilter(BEFOLKNING.LAYER, filter);
+	map.setFilter(BEFOLKNING.LAYER_OUTLINE, filter);
+};
+
 const oppdaterAlleFiltre = () => {
-	oppdaterBrannstasjonFilter();
 	oppdaterTilfluktsromFilter();
+	oppdaterBefolkningFilter();
 };
 
 const meny = (fylkeGeometrier) => {
 	const audio = document.getElementById("bird-sounds");
+	const mapRegion = document.getElementById("map");
 
-	const $toggleBrannBtn = document.getElementById("toggle-brannstasjoner");
 	const $toggleTilflBtn = document.getElementById("toggle-tilfluktsrom");
+	const $toggleBefolkningBtn = document.getElementById("toggle-befolkning");
 	const $toggleSoundBtn = document.getElementById("toggle-sound");
 
 	const $fylkeSelect = document.getElementById("fylke-filter");
 	const $resetFylkeBtn = document.getElementById("reset-fylke");
 
-	const $stasjonstypeSelect = document.getElementById("stasjonstype-filter");
-	const $resetBrannBtn = document.getElementById("reset-brann-filter");
-
 	const $minPlasserInput = document.getElementById("min-plasser");
 	const $resetTilflBtn = document.getElementById("reset-tifl-filter");
+
+	const $minBefolkningInput = document.getElementById("min-befolkning");
+	const $resetBefolkningBtn = document.getElementById("reset-bef-filter");
 
 	const sorterteNavn = Object.keys(fylkeGeometrier).sort();
 	if (sorterteNavn.length === 0) {
@@ -205,17 +205,6 @@ const meny = (fylkeGeometrier) => {
 		oppdaterAlleFiltre();
 	};
 
-	$stasjonstypeSelect.onchange = () => {
-		filterState.brannstasjonType = $stasjonstypeSelect.value;
-		oppdaterBrannstasjonFilter();
-	};
-
-	$resetBrannBtn.onclick = () => {
-		filterState.brannstasjonType = "";
-		$stasjonstypeSelect.value = "";
-		oppdaterBrannstasjonFilter();
-	};
-
 	$minPlasserInput.oninput = () => {
 		filterState.tilfluktsromMinPlasser = $minPlasserInput.value;
 		oppdaterTilfluktsromFilter();
@@ -227,21 +216,42 @@ const meny = (fylkeGeometrier) => {
 		oppdaterTilfluktsromFilter();
 	};
 
+	$minBefolkningInput.oninput = () => {
+		filterState.befolkningMinPop = $minBefolkningInput.value;
+		oppdaterBefolkningFilter();
+	};
+
+	$resetBefolkningBtn.onclick = () => {
+		filterState.befolkningMinPop = "";
+		$minBefolkningInput.value = "";
+		oppdaterBefolkningFilter();
+	};
+
+	const setPressedState = (button, isVisible) => {
+		button.setAttribute("aria-pressed", String(isVisible));
+	};
+
 	const toggleLayer = (layerId, button, visLabel, skjulLabel) => {
 		const vis = map.getLayoutProperty(layerId, "visibility");
 		const nyVisibility = vis === "visible" ? "none" : "visible";
 
 		map.setLayoutProperty(layerId, "visibility", nyVisibility);
+		setPressedState(button, nyVisibility === "visible");
 		button.textContent = nyVisibility === "visible" ? skjulLabel : visLabel;
 	};
 
-	$toggleBrannBtn.onclick = () =>
-		toggleLayer(
-			BRANNSTASJON.LAYER,
-			$toggleBrannBtn,
-			"Vis Brannstasjoner (B)",
-			"Skjul Brannstasjoner (B)",
-		);
+	const toggleBefolkningLayers = () => {
+		const vis = map.getLayoutProperty(BEFOLKNING.LAYER, "visibility");
+		const nyVisibility = vis === "visible" ? "none" : "visible";
+
+		map.setLayoutProperty(BEFOLKNING.LAYER, "visibility", nyVisibility);
+		map.setLayoutProperty(BEFOLKNING.LAYER_OUTLINE, "visibility", nyVisibility);
+		setPressedState($toggleBefolkningBtn, nyVisibility === "visible");
+		$toggleBefolkningBtn.textContent =
+			nyVisibility === "visible"
+				? "Skjul Befolkning (P)"
+				: "Vis Befolkning (P)";
+	};
 
 	$toggleTilflBtn.onclick = () =>
 		toggleLayer(
@@ -251,40 +261,60 @@ const meny = (fylkeGeometrier) => {
 			"Skjul Tilfluktsrom (T)",
 		);
 
+	$toggleBefolkningBtn.onclick = toggleBefolkningLayers;
+
 	const onToggleSound = () => {
 		if (audio.paused) {
 			audio.play();
+			setPressedState($toggleSoundBtn, true);
 			$toggleSoundBtn.textContent = "Skru av lyd (M)";
 		} else {
 			audio.pause();
+			setPressedState($toggleSoundBtn, false);
 			$toggleSoundBtn.textContent = "Skru på lyd (M)";
 		}
 	};
 	$toggleSoundBtn.onclick = onToggleSound;
 
+	const erFokusIInput = () => {
+		const active = document.activeElement;
+		if (!active) return false;
+
+		return (
+			active instanceof HTMLInputElement ||
+			active instanceof HTMLTextAreaElement ||
+			active instanceof HTMLSelectElement ||
+			active.isContentEditable
+		);
+	};
+
 	document.onkeydown = (e) => {
+		if (erFokusIInput()) return;
+
 		switch (e.key.toLowerCase()) {
-			case "b":
-				$toggleBrannBtn.click();
-				break;
 			case "t":
 				$toggleTilflBtn.click();
+				break;
+			case "p":
+				toggleBefolkningLayers();
 				break;
 			case "m":
 				onToggleSound();
 				break;
 		}
 	};
+
+	mapRegion.setAttribute("aria-busy", "false");
 };
 
 map.on("load", async () => {
 	const [fylkeGeometrier] = await Promise.all([
 		hentFylker(),
-		lastInnBrannstasjoner(map),
+		lastInnBefolkning(map),
 		lastInnTilfluktsrom(map),
 	]);
 
-	installBrannstasjonEventer(map);
+	installBefolkningEventer(map);
 	installTilfluktsromEventer(map);
 	installRadiusSok(map);
 
