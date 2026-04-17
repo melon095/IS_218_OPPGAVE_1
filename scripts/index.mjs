@@ -1,11 +1,5 @@
 import { installRadiusSok } from "../Oppgave2-database/sokRadius.mjs";
 import {
-	BRANNSTASJON,
-	brannstasjonStasjonstypeFilter,
-	installBrannstasjonEventer,
-	lastInnBrannstasjoner,
-} from "./brannstasjon.mjs";
-import {
 	installTilfluktsromEventer,
 	lastInnTilfluktsrom,
 	TILFLUKTSROM,
@@ -110,7 +104,6 @@ const hentFylker = async () => {
 const filterState = {
 	fylkeNavn: "",
 	fylkeGeometri: null,
-	brannstasjonType: "",
 	tilfluktsromMinPlasser: "",
 	befolkningMinPop: "",
 };
@@ -120,17 +113,6 @@ const byggFilter = (parts) => {
 	if (parts.length === 1) return parts[0];
 
 	return ["all", ...parts];
-};
-
-const oppdaterBrannstasjonFilter = () => {
-	const parts = [
-		fylkeFilter(filterState.fylkeGeometri),
-		brannstasjonStasjonstypeFilter(filterState.brannstasjonType),
-	].filter(Boolean);
-
-	const filter = byggFilter(parts);
-
-	map.setFilter(BRANNSTASJON.LAYER, filter);
 };
 
 const oppdaterTilfluktsromFilter = () => {
@@ -157,7 +139,6 @@ const oppdaterBefolkningFilter = () => {
 };
 
 const oppdaterAlleFiltre = () => {
-	oppdaterBrannstasjonFilter();
 	oppdaterTilfluktsromFilter();
 	oppdaterBefolkningFilter();
 };
@@ -165,16 +146,12 @@ const oppdaterAlleFiltre = () => {
 const meny = (fylkeGeometrier) => {
 	const audio = document.getElementById("bird-sounds");
 
-	const $toggleBrannBtn = document.getElementById("toggle-brannstasjoner");
 	const $toggleTilflBtn = document.getElementById("toggle-tilfluktsrom");
 	const $toggleBefolkningBtn = document.getElementById("toggle-befolkning");
 	const $toggleSoundBtn = document.getElementById("toggle-sound");
 
 	const $fylkeSelect = document.getElementById("fylke-filter");
 	const $resetFylkeBtn = document.getElementById("reset-fylke");
-
-	const $stasjonstypeSelect = document.getElementById("stasjonstype-filter");
-	const $resetBrannBtn = document.getElementById("reset-brann-filter");
 
 	const $minPlasserInput = document.getElementById("min-plasser");
 	const $resetTilflBtn = document.getElementById("reset-tifl-filter");
@@ -227,17 +204,6 @@ const meny = (fylkeGeometrier) => {
 		oppdaterAlleFiltre();
 	};
 
-	$stasjonstypeSelect.onchange = () => {
-		filterState.brannstasjonType = $stasjonstypeSelect.value;
-		oppdaterBrannstasjonFilter();
-	};
-
-	$resetBrannBtn.onclick = () => {
-		filterState.brannstasjonType = "";
-		$stasjonstypeSelect.value = "";
-		oppdaterBrannstasjonFilter();
-	};
-
 	$minPlasserInput.oninput = () => {
 		filterState.tilfluktsromMinPlasser = $minPlasserInput.value;
 		oppdaterTilfluktsromFilter();
@@ -280,14 +246,6 @@ const meny = (fylkeGeometrier) => {
 				: "Vis Befolkning (P)";
 	};
 
-	$toggleBrannBtn.onclick = () =>
-		toggleLayer(
-			BRANNSTASJON.LAYER,
-			$toggleBrannBtn,
-			"Vis Brannstasjoner (B)",
-			"Skjul Brannstasjoner (B)",
-		);
-
 	$toggleTilflBtn.onclick = () =>
 		toggleLayer(
 			TILFLUKTSROM.LAYER,
@@ -311,9 +269,6 @@ const meny = (fylkeGeometrier) => {
 
 	document.onkeydown = (e) => {
 		switch (e.key.toLowerCase()) {
-			case "b":
-				$toggleBrannBtn.click();
-				break;
 			case "t":
 				$toggleTilflBtn.click();
 				break;
@@ -331,12 +286,10 @@ map.on("load", async () => {
 	const [fylkeGeometrier] = await Promise.all([
 		hentFylker(),
 		lastInnBefolkning(map),
-		lastInnBrannstasjoner(map),
 		lastInnTilfluktsrom(map),
 	]);
 
 	installBefolkningEventer(map);
-	installBrannstasjonEventer(map);
 	installTilfluktsromEventer(map);
 	installRadiusSok(map);
 
