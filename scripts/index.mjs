@@ -1,10 +1,10 @@
-import { installRadiusSok } from "../Oppgave2-database/sokRadius.mjs";
 import {
 	BEFOLKNING,
 	befolkningMinFilter,
 	installBefolkningEventer,
 	lastInnBefolkning,
 } from "./befolkning.mjs";
+import { installRadiusSok } from "./sokRadius.mjs";
 import {
 	installTilfluktsromEventer,
 	lastInnTilfluktsrom,

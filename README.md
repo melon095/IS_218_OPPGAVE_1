@@ -19,6 +19,8 @@
 ## 1. Hva kartet løser
 Kartløsningen visualiserer to datasett over hele Norge: **offentlige tilfluktsrom** og **befolkningstetthet**. Brukeren kan filtrere innholdet romlig per fylke (basert på offisielle grenser fra Kartverket), i tillegg til attributtbaserte filtre for hvert datasett. Interaktive kontroller lar brukeren skru lag av og på, og klikk på punkter viser detaljert informasjon i popup-vinduer.
 
+Koden som består av oppgave 1 er ikke inkludert i denne komitten, det vil si for å teste oppgave 1 må du klone repoet sjekke ut taggen `oppgave-1`.
+
 ## 2. Demo av system
 https://github.com/user-attachments/assets/f6a73c03-efca-43c6-a7b2-e22edfeae587
 
@@ -72,9 +74,9 @@ Løsningen håndterer romlig filtrering i frontend, noe som fungerer godt for sm
 # Oppgave 2
 
 ## Utvidelse av Webkartet
-Utvidelsen til oppgaven lar brukeren velge en posisjon på kartet for å se hvor mange tilfluktsrom som er i nærheten. Denne funksjonen er gjort mulig av funksjonen finn_tilfluktsrom, som bruker PostGIS funksjoner for å beregne antall rom i SQL spørringen. Funksjonen blir kallt opp i [sokRadius.mjs](./Oppgave2-database/sokRadius.mjs) som også sørger for å lage visuelt feedback til brukeren, som skjer både i menyen, og som en markør på kartet. Dersom det er flere tilfluktsrom enn det er plass på en markør, vil det være mulig å scrolle gjennom dem. Dette gjør at brukeren ikke må dra på kartet for å kunne se informasjonen.
+Utvidelsen til oppgaven lar brukeren velge en posisjon på kartet for å se hvor mange tilfluktsrom som er i nærheten. Denne funksjonen er gjort mulig av funksjonen finn_tilfluktsrom, som bruker PostGIS funksjoner for å beregne antall rom i SQL spørringen. Funksjonen blir kallt opp i [sokRadius.mjs](./scripts/sokRadius.mjs) som også sørger for å lage visuelt feedback til brukeren, som skjer både i menyen, og som en markør på kartet. Dersom det er flere tilfluktsrom enn det er plass på en markør, vil det være mulig å scrolle gjennom dem. Dette gjør at brukeren ikke må dra på kartet for å kunne se informasjonen.
 
-SQL-koden for å finne tilfluktsrom er plassert i [./Oppgave2-database/sql/finn_tilfukts_function.sql](./Oppgave2-database/sql/finn_tilfukts_function.sql) og ser slik ut:
+SQL-koden for å finne tilfluktsrom er plassert i [./sql/finn_tilfukts_function.sql](./sql/finn_tilfukts_function.sql) og ser slik ut:
 
 ```sql
 CREATE OR REPLACE FUNCTION finn_tilfluktsrom(
@@ -93,6 +95,8 @@ AS $$
   );
 $$ LANGUAGE sql;
 ```
+
+Det er anbefalt å sjekke ut taggen `oppgave-2` for å teste denne funksjonaliteten, da koden for oppgave 4 har blitt forandret betydelig fra oppgave 2.
 
 ### Video
 https://github.com/user-attachments/assets/b6126059-9991-4c9d-8188-8a5716618e5b
