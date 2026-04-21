@@ -5,7 +5,7 @@
   - [1. Hva kartet løser](#1-hva-kartet-løser)
   - [2. Demo av system](#2-demo-av-system)
   - [3. Teknisk stack](#3-teknisk-stack)
-  - [4. Data Katalog](#4-data-katalog)
+  - [4. Datakatalog](#4-datakatalog)
     - [4.1 Filtreringsmuligheter](#41-filtreringsmuligheter)
   - [5. Arkitektur og dataflyt](#5-arkitektur-og-dataflyt)
   - [6. Refleksjon](#6-refleksjon)
@@ -55,8 +55,8 @@ ogr2ogr -f "PostgreSQL" PG:"host=aws-1-eu-west-2.pooler.supabase.com dbname=post
 
 ### 4.1 Filtreringsmuligheter
 
-| Filter    | Datasett     | Beskrivelse                                                                                                   |
-| --------- | ------------ | ------------------------------------------------------------------------------------------------------------- |
+| Filter    | Datasett     | Beskrivelse                                                                                                      |
+| --------- | ------------ | ---------------------------------------------------------------------------------------------------------------- |
 | Fylke     | Alle         | Brukeren kan velge ett eller flere fylker for å filtrere både tilfluktsrom og befolkning innenfor valgte fylker. |
 | Kapasitet | Tilfluktsrom | Brukeren kan filtrere tilfluktsrom basert på kapasitet, for eksempel alle rom med mer enn 100 plasser.           |
 
@@ -116,4 +116,4 @@ Datasettene ble lastet ned som GML-filer og deretter konvertert til GeoParquet v
 
 # Oppgave 3
 
-I oppgave 3 har vi valgt å inkludere populasjonstetthet per kvadratkilometer i Agder fylke. Vi har også forbedret utseendet til nettsiden og gjort den mer universelt utformet og mobil vennlig.
+I oppgave 3 har vi valgt å inkludere befolkningstetthet per kvadratkilometer i Agder fylke. Vi har også forbedret utseendet på nettsiden og gjort den mer universelt utformet og mobilvennlig.
