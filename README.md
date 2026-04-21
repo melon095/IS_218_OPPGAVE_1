@@ -5,7 +5,7 @@
   - [1. Hva kartet løser](#1-hva-kartet-løser)
   - [2. Demo av system](#2-demo-av-system)
   - [3. Teknisk stack](#3-teknisk-stack)
-  - [4. Data Katalog](#4-data-katalog)
+  - [4. Datakatalog](#4-datakatalog)
     - [4.1 Filtreringsmuligheter](#41-filtreringsmuligheter)
   - [5. Arkitektur og dataflyt](#5-arkitektur-og-dataflyt)
   - [6. Refleksjon](#6-refleksjon)
@@ -13,11 +13,14 @@
   - [Utvidelse av Webkartet](#utvidelse-av-webkartet)
     - [Video](#video)
   - [Romlig analyse ved hjelp av Jupyter Notebook](#romlig-analyse-ved-hjelp-av-jupyter-notebook)
+- [Oppgave 3](#oppgave-3)
 
 # Oppgave 1
 
 ## 1. Hva kartet løser
-Kartløsningen visualiserer to beredskaps-datasett over hele Norge: **offentlige tilfluktsrom** og **brannstasjoner**. Brukeren kan filtrere innholdet romlig per fylke (basert på offisielle grenser fra Kartverket), i tillegg til attributtbaserte filtre for hvert datasett. Interaktive kontroller lar brukeren skru lag av og på, og klikk på punkter viser detaljert informasjon i popup-vinduer.
+Kartløsningen visualiserer to datasett over hele Norge: **offentlige tilfluktsrom** og **befolkningstetthet**. Brukeren kan filtrere innholdet romlig per fylke (basert på offisielle grenser fra Kartverket), i tillegg til attributtbaserte filtre for hvert datasett. Interaktive kontroller lar brukeren skru lag av og på, og klikk på punkter viser detaljert informasjon i popup-vinduer.
+
+Koden for oppgave 1 er ikke inkludert i denne commiten. For å teste oppgave 1 må du klone repoet og sjekke ut taggen `oppgave-1`. Du kan også se oppgaven via permanent commit-lenke [her](https://github.com/melon095/IS_218_OPPGAVE_1/commit/23f48d576cb8af12307d668cc73fba6a712c3c48) eller via [oppgave-1-taggen](https://github.com/melon095/IS_218_OPPGAVE_1/releases/tag/oppgave-1).
 
 ## 2. Demo av system
 https://github.com/user-attachments/assets/f6a73c03-efca-43c6-a7b2-e22edfeae587
@@ -33,37 +36,33 @@ https://github.com/user-attachments/assets/f6a73c03-efca-43c6-a7b2-e22edfeae587
 | Programmering    | JavaScript           | -                                             |
 | Lokal server     | VS Code Live Preview | -                                             |
 
-## 4. Data Katalog
-| Datasett       | Kilde                                                                                                             | Format                                  |
-| -------------- | ----------------------------------------------------------------------------------------------------------------- | --------------------------------------- |
-| Bakgrunnskart  | [Kartverket](https://cache.kartverket.no/) (GeoNorge – Norgeskart)                                                | WMS                                     |
-| Fylkegrenser   | [Kartverket administrative enheter-API](https://api.kartverket.no/kommuneinfo/v1/)                                | GeoJSON                                 |
-| Tilfluktsrom   | [GeoNorge](https://kartkatalog.geonorge.no/metadata/tilfluktsrom-offentlige/dbae9aae-10e7-4b75-8d67-7f0e8828f3d8) | GeoJSON                                 |
-| Brannstasjoner | [GeoNorge](https://kartkatalog.geonorge.no/metadata/brannstasjoner/0ccce81d-a72e-46ca-8bd9-57b362376485)          | GML - Lastet opp i Supabase via ogr2ogr |
+## 4. Datakatalog
+| Datasett      | Kilde                                                                                                             | Format  |
+| ------------- | ----------------------------------------------------------------------------------------------------------------- | ------- |
+| Bakgrunnskart | [Kartverket](https://cache.kartverket.no/) (GeoNorge – Norgeskart)                                                | WMS     |
+| Fylkegrenser  | [Kartverket administrative enheter-API](https://api.kartverket.no/kommuneinfo/v1/)                                | GeoJSON |
+| Tilfluktsrom  | [GeoNorge](https://kartkatalog.geonorge.no/metadata/tilfluktsrom-offentlige/dbae9aae-10e7-4b75-8d67-7f0e8828f3d8) | GeoJSON |
 
-Dataset blei videre bearbeidet i ogr2ogr for å konvertere GML til GeoJSON og reprojiseres til EPSG:4326 (WGS 84) for bruk i webkart. Det bearbeidede datasettet ble deretter lastet opp til Supabase.
+Datasettet ble videre bearbeidet i ogr2ogr for å reprojisere data til EPSG:4326 (WGS 84) for bruk i webkart. Det bearbeidede datasettet ble deretter lastet opp til Supabase.
 
 ```bash
 # Konvertering av GML til GeoJSON og reprojisering
-ogr2ogr -f GeoJSON -t_srs EPSG:4326 brannstasjoner.geojson brannstasjoner.gml
 ogr2ogr -t_srs EPSG:4326 tilfluktsrom.gml tilfluktsrom.gml
 
-# Laste opp til Supabase, krever at passord er satt i .pgpass fil
+# Last opp til Supabase (krever at passord er satt i .pgpass-filen)
 ogr2ogr -f "PostgreSQL" PG:"host=aws-1-eu-west-2.pooler.supabase.com dbname=postgres user=postgres.xxx" tilfluktsrom.gml -nln tilfluktsrom
 ```
 
 ### 4.1 Filtreringsmuligheter
 
-| Filter       | Datasett       | Beskrivelse                                                                                                       |
-| ------------ | -------------- | ----------------------------------------------------------------------------------------------------------------- |
-| Fylke        | Alle           | Brukeren kan velge ett eller fylke for å filtrere både tilfluktsrom og brannstasjoner innenfor det valgte fylket. |
-| Stasjonstype | Brannstasjoner | Brukeren kan filtrere brannstasjoner basert på type som hovedstasjoner og lokale / underordnede stasjoner.        |
-| Kapasitet    | Tilfluktsrom   | Brukeren kan filtrere tilfluktsrom basert på kapasitet, for eksempel alle rom med mer enn 100 plasser.            |
+| Filter    | Datasett     | Beskrivelse                                                                                                      |
+| --------- | ------------ | ---------------------------------------------------------------------------------------------------------------- |
+| Fylke     | Alle         | Brukeren kan velge ett eller flere fylker for å filtrere både tilfluktsrom og befolkning innenfor valgte fylker. |
+| Kapasitet | Tilfluktsrom | Brukeren kan filtrere tilfluktsrom basert på kapasitet, for eksempel alle rom med mer enn 100 plasser.           |
 
 ## 5. Arkitektur og dataflyt
 - Punktdata er opprettet og redigert i ogr2ogr
 - Datasettet eksporteres til GeoJSON og reprojiseres til EPSG:4326 (WGS 84) for bruk i webkart
-- Brannstasjoner hentes som lokal GeoJSON via `fetch`.
 - Tilfluktsromdata hentes først fra Supabase via REST API.
 - Kartvisningen håndteres av MapLibre GL JS i nettleseren.
 - Bakgrunnskart hentes direkte fra Kartverket via WMTS.
@@ -76,9 +75,9 @@ Løsningen håndterer romlig filtrering i frontend, noe som fungerer godt for sm
 # Oppgave 2
 
 ## Utvidelse av Webkartet
-Utvidelsen til oppgaven lar brukeren velge en posisjon på kartet for å se hvor mange tilfluktsrom som er i nærheten. Denne funksjonen er gjort mulig av funksjonen finn_tilfluktsrom, som bruker PostGIS funksjoner for å beregne antall rom i SQL spørringen. Funksjonen blir kallt opp i [sokRadius.mjs](./Oppgave2-database/sokRadius.mjs) som også sørger for å lage visuelt feedback til brukeren, som skjer både i menyen, og som en markør på kartet. Dersom det er flere tilfluktsrom enn det er plass på en markør, vil det være mulig å scrolle gjennom dem. Dette gjør at brukeren ikke må dra på kartet for å kunne se informasjonen.
+Utvidelsen i oppgaven lar brukeren velge en posisjon på kartet for å se hvor mange tilfluktsrom som finnes i nærheten. Denne funksjonen er muliggjort av funksjonen `finn_tilfluktsrom`, som bruker PostGIS-funksjoner til å beregne antall rom i SQL-spørringen. Funksjonen kalles fra [sokRadius.mjs](./scripts/sokRadius.mjs), som også sørger for visuell tilbakemelding til brukeren både i menyen og som en markør på kartet. Dersom det er flere tilfluktsrom enn det er plass til i markøren, kan brukeren scrolle gjennom dem. Dette gjør at brukeren slipper å flytte kartet for å se informasjonen.
 
-SQL-koden for å finne tilfluktsrom er plassert i [./Oppgave2-database/sql/finn_tilfukts_function.sql](./Oppgave2-database/sql/finn_tilfukts_function.sql) og ser slik ut:
+SQL-koden for å finne tilfluktsrom ligger i [./sql/finn_tilfukts_function.sql](./sql/finn_tilfukts_function.sql) og ser slik ut:
 
 ```sql
 CREATE OR REPLACE FUNCTION finn_tilfluktsrom(
@@ -98,11 +97,13 @@ AS $$
 $$ LANGUAGE sql;
 ```
 
+Det anbefales å sjekke ut taggen `oppgave-2` for å teste denne funksjonaliteten. Du kan også bruke permanent commit-lenke [her](https://github.com/melon095/IS_218_OPPGAVE_1/commit/490359ce1aa0a7946975ba5a7834ab3975d7cd2e) eller [oppgave-2-taggen](https://github.com/melon095/IS_218_OPPGAVE_1/releases/tag/oppgave-2).
+
 ### Video
 https://github.com/user-attachments/assets/b6126059-9991-4c9d-8188-8a5716618e5b
 
 ## Romlig analyse ved hjelp av Jupyter Notebook
-I tillegg til utvidelsen av webkartet, har vi også utført en romlig analyse ved hjelp av Jupyter Notebook. Analysen fokuserte på å undersøke forholdet mellom tilfluktsrom og befolkningstetthet i Norge. Vi brukte data om befolkningstetthet fra Statistisk sentralbyrå (SSB) og data om tilfluktsrom fra Kartverket. Vi brukte Python-biblioteker som GeoPandas og Matplotlib for å visualisere resultatatene. Analysen viste at det er en tendens til at områder med høy befolkningstetthet har flere tilfluktsrom, men det er også noen unntak, spesielt i mer rurale områder. Dette kan indikere at det er behov for å vurdere plasseringen av tilfluktsrom i forhold til befolkningstetthet for å sikre at de er tilgjengelige for de som trenger dem mest. Videre analyser kunne inkludert faktorer som avstand til nærmeste tilfluktsrom og tilgjengelighet for personer med nedsatt mobilitet.
+I tillegg til utvidelsen av webkartet har vi utført en romlig analyse ved hjelp av Jupyter Notebook. Analysen fokuserte på forholdet mellom tilfluktsrom og befolkningstetthet i Norge. Vi brukte data om befolkningstetthet fra Statistisk sentralbyrå (SSB) og data om tilfluktsrom fra Kartverket. Python-biblioteker som GeoPandas og Matplotlib ble brukt til å visualisere resultatene. Analysen viste en tendens til at områder med høy befolkningstetthet har flere tilfluktsrom, men også noen unntak, særlig i mer rurale områder. Dette kan tyde på at plasseringen av tilfluktsrom bør vurderes opp mot befolkningstetthet for å sikre god tilgjengelighet. Videre analyser kan inkludere faktorer som avstand til nærmeste tilfluktsrom og tilgjengelighet for personer med nedsatt mobilitet.
 
 [URL til Jupyter Notebook](./romlig-analyse/romlig-analyse.ipynb)
 
@@ -112,3 +113,7 @@ I tillegg til utvidelsen av webkartet, har vi også utført en romlig analyse ve
 | Tilfluktsrom       | [GeoNorge](https://kartkatalog.geonorge.no/metadata/tilfluktsrom-offentlige/dbae9aae-10e7-4b75-8d67-7f0e8828f3d8) | GeoParquet |
 
 Datasettene ble lastet ned som GML-filer og deretter konvertert til GeoParquet ved hjelp av ogr2ogr.
+
+# Oppgave 3
+
+I oppgave 3 har vi valgt å inkludere befolkningstetthet per kvadratkilometer i Agder fylke. Vi har også forbedret utseendet på nettsiden og gjort den mer universelt utformet og mobilvennlig.
