@@ -19,7 +19,7 @@
 ## 1. Hva kartet løser
 Kartløsningen visualiserer to datasett over hele Norge: **offentlige tilfluktsrom** og **befolkningstetthet**. Brukeren kan filtrere innholdet romlig per fylke (basert på offisielle grenser fra Kartverket), i tillegg til attributtbaserte filtre for hvert datasett. Interaktive kontroller lar brukeren skru lag av og på, og klikk på punkter viser detaljert informasjon i popup-vinduer.
 
-Koden som består av oppgave 1 er ikke inkludert i denne komitten, det vil si for å teste oppgave 1 må du klone repoet sjekke ut taggen `oppgave-1`.
+Koden som består av oppgave 1 er ikke inkludert i denne komitten, det vil si for å teste oppgave 1 må du klone repoet og sjekke ut taggen `oppgave-1`, En kan også sjekke ut oppgaven via permanent-commit lenke [her](https://github.com/melon095/IS_218_OPPGAVE_1/commit/23f48d576cb8af12307d668cc73fba6a712c3c48) eller med [oppgave-1 taggen](https://github.com/melon095/IS_218_OPPGAVE_1/releases/tag/oppgave-1)
 
 ## 2. Demo av system
 https://github.com/user-attachments/assets/f6a73c03-efca-43c6-a7b2-e22edfeae587
@@ -96,7 +96,7 @@ AS $$
 $$ LANGUAGE sql;
 ```
 
-Det er anbefalt å sjekke ut taggen `oppgave-2` for å teste denne funksjonaliteten, da koden for oppgave 4 har blitt forandret betydelig fra oppgave 2.
+Det er anbefalt å sjekke ut taggen `oppgave-2` for å teste denne funksjonaliteten, det samme gjelder for permanent-commit lenke [her](https://github.com/melon095/IS_218_OPPGAVE_1/commit/490359ce1aa0a7946975ba5a7834ab3975d7cd2e) eller med [oppgave-2 taggen](https://github.com/melon095/IS_218_OPPGAVE_1/releases/tag/oppgave-2)
 
 ### Video
 https://github.com/user-attachments/assets/b6126059-9991-4c9d-8188-8a5716618e5b
