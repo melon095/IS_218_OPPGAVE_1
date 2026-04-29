@@ -117,14 +117,20 @@ I tillegg til utvidelsen av webkartet har vi utført en romlig analyse ved hjelp
 
 [URL til Jupyter Notebook](./romlig-analyse/romlig-analyse.ipynb)
 
-| Datasett           | URL                                                                                                               | Fil                                                                      |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| Befolkningstetthet | [GeoNorge](https://kartkatalog.geonorge.no/metadata/tilfluktsrom-offentlige/dbae9aae-10e7-4b75-8d67-7f0e8828f3d8) | [./dataset/befolkning_wgs84.geojson](./dataset/befolkning_wgs84.geojson) |
-| Tilfluktsrom       | [GeoNorge](https://kartkatalog.geonorge.no/metadata/tilfluktsrom-offentlige/dbae9aae-10e7-4b75-8d67-7f0e8828f3d8) | [./dataset/tilfluktsrom.geojson](./dataset/tilfluktsrom.geojson)         |
+| Datasett           | URL                                                                                                               | Format     |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------- | ---------- |
+| Befolkningstetthet | [GeoNorge](https://kartkatalog.geonorge.no/metadata/tilfluktsrom-offentlige/dbae9aae-10e7-4b75-8d67-7f0e8828f3d8) | GeoParquet |
+| Tilfluktsrom       | [GeoNorge](https://kartkatalog.geonorge.no/metadata/tilfluktsrom-offentlige/dbae9aae-10e7-4b75-8d67-7f0e8828f3d8) | GeoParquet |
 
 Datasettene ble lastet ned som GML-filer og deretter konvertert til GeoParquet ved hjelp av ogr2ogr.
 
 # Oppgave 3
+
+| Datasett           | URL                                                                                                               |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| Befolkningstetthet | [GeoNorge](https://kartkatalog.geonorge.no/metadata/tilfluktsrom-offentlige/dbae9aae-10e7-4b75-8d67-7f0e8828f3d8) |
+| Tilfluktsrom       | [GeoNorge](https://kartkatalog.geonorge.no/metadata/tilfluktsrom-offentlige/dbae9aae-10e7-4b75-8d67-7f0e8828f3d8) |
+| Fylkegrenser       | [Kartverket administrative enheter-API](https://api.kartverket.no/kommuneinfo/v1/)                                |
 
 I oppgave 3 bygger vi videre på løsningene fra oppgave 1 og 2, og samler nå tre datasett i én helhetlig kartapplikasjon: befolkningstetthet, tilfluktsrom og fylkegrenser. Befolkningstetthet og tilfluktsrom visualiseres som egne kartlag, mens fylkegrensene brukes til romlig avgrensning i filteret slik at brukeren kan fokusere analysen på ett fylke om gangen.
 
