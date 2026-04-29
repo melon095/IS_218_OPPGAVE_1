@@ -1,16 +1,20 @@
+import * as supabase from "./supabasekobling.mjs";
+
 export const BEFOLKNING = {
 	SOURCE: "befolkning_source",
 	LAYER: "befolkning_layer",
 	LAYER_OUTLINE: "befolkning_outline_layer",
-	DATASET_PATH: "dataset/befolkning_wgs84.geojson",
 };
 
 export const lastInnBefolkning = async (map) => {
 	try {
-		const data = await fetch(BEFOLKNING.DATASET_PATH).then((res) => {
-			if (!res.ok) throw new Error(`HTTP ${res.status}`);
-			return res.json();
-		});
+		const data = await supabase.hentBefolkingsData().then((data) =>
+			supabase.konverterResponseTilGeoJSON(data, (plass) => ({
+				type: "Feature",
+				geometry: plass.wkb_geometry,
+				properties: plass,
+			})),
+		);
 
 		map.addSource(BEFOLKNING.SOURCE, {
 			type: "geojson",
@@ -25,7 +29,7 @@ export const lastInnBefolkning = async (map) => {
 				"fill-color": [
 					"interpolate",
 					["linear"],
-					["get", "popTot"],
+					["get", "poptot"],
 					0,
 					"rgba(255, 255, 255, 0)",
 					1,
@@ -68,15 +72,15 @@ export const lastInnBefolkning = async (map) => {
 
 export const installBefolkningEventer = (map) => {
 	map.on("click", BEFOLKNING.LAYER, (e) => {
-		const { popTot, popAve, popFem, popMal } = e.features[0].properties;
+		const { poptot, popave, popfem, popmal } = e.features[0].properties;
 		const coords = e.lngLat;
 
 		const html = `
 			<strong>Befolkningsstatistikk (1km²)</strong><br/>
-			<strong>Total:</strong> ${popTot ?? 0} personer<br/>
-			<strong>Kvinner:</strong> ${popFem ?? 0}<br/>
-			<strong>Menn:</strong> ${popMal ?? 0}<br/>
-			<strong>Gjennomsnittsalder:</strong> ${popAve ? popAve + " år" : "Ikke oppgitt"}
+			<strong>Total:</strong> ${poptot ?? 0} personer<br/>
+			<strong>Kvinner:</strong> ${popfem ?? 0}<br/>
+			<strong>Menn:</strong> ${popmal ?? 0}<br/>
+			<strong>Gjennomsnittsalder:</strong> ${popave ? `${popave} år` : "Ikke oppgitt"}
 		`;
 
 		new maplibregl.Popup({ className: "popup" })
@@ -96,5 +100,5 @@ export const installBefolkningEventer = (map) => {
 
 export const befolkningMinFilter = (minPop) => {
 	if (!minPop) return null;
-	return [">=", ["get", "popTot"], Number(minPop)];
+	return [">=", ["get", "poptot"], Number(minPop)];
 };

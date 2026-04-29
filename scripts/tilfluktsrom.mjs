@@ -1,9 +1,4 @@
-const SUPABASE = {
-	API_KEY: "sb_publishable__M6fyGnAyEymqPV0JAj9TA_pvdG3Tx8",
-	BASE_URL: "https://deobegwgsvlzqzpidpqq.supabase.co/rest/v1/",
-	SCHEMA: "public",
-	TABLE: "tilfluktsrom",
-};
+import * as supabase from "./supabasekobling.mjs";
 
 export const TILFLUKTSROM = {
 	SOURCE: "tilfluktsrom_source",
@@ -11,39 +6,14 @@ export const TILFLUKTSROM = {
 	COLOR: "#3a8fe6",
 };
 
-const hentTilfluktsromData = async () => {
-	try {
-		const raw = await fetch(`${SUPABASE.BASE_URL}${SUPABASE.TABLE}?select=*`, {
-			headers: {
-				apiKey: SUPABASE.API_KEY,
-				"Accept-Profile": SUPABASE.SCHEMA,
-			},
-			method: "GET",
-		}).then((res) => {
-			if (!res.ok) throw new Error(`Supabase svarte med ${res.status}`);
-			return res.json();
-		});
-
-		const features = raw.map((plass) => {
-			const { posisjon, romnr, plasser, adresse } = plass;
-
-			return {
-				type: "Feature",
-				geometry: { type: "Point", coordinates: posisjon.coordinates },
-				properties: { romnr, plasser, adresse },
-			};
-		});
-
-		return { type: "FeatureCollection", features };
-	} catch (err) {
-		console.error("Feil ved innlastning av tilfluktsromdata:", err);
-
-		return { type: "FeatureCollection", features: [] };
-	}
-};
-
 export const lastInnTilfluktsrom = async (map) => {
-	const data = await hentTilfluktsromData();
+	const data = await supabase.hentTilfluktsromData().then((data) =>
+		supabase.konverterResponseTilGeoJSON(data, (plass) => ({
+			type: "Feature",
+			geometry: plass.posisjon,
+			properties: plass,
+		})),
+	);
 
 	map.addSource(TILFLUKTSROM.SOURCE, {
 		type: "geojson",

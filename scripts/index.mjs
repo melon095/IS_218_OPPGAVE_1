@@ -314,6 +314,9 @@ map.on("load", async () => {
 		lastInnTilfluktsrom(map),
 	]);
 
+	map.moveLayer(BEFOLKNING.LAYER, TILFLUKTSROM.LAYER);
+	map.moveLayer(BEFOLKNING.LAYER_OUTLINE, TILFLUKTSROM.LAYER);
+
 	installBefolkningEventer(map);
 	installTilfluktsromEventer(map);
 	installRadiusSok(map);
