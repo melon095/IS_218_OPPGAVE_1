@@ -64,6 +64,12 @@ const beregnBoks = (geometry) => {
 	];
 };
 
+const fylkeFilter = (geometri) => {
+	if (!geometri) return null;
+
+	return ["within", { type: "Feature", geometry: geometri }];
+};
+
 const KOMMUNEINFO_BASE = "https://api.kartverket.no/kommuneinfo/v1";
 
 const hentFylker = async () => {
@@ -110,9 +116,12 @@ const byggFilter = (parts) => {
 };
 
 const oppdaterTilfluktsromFilter = () => {
-	const filter = byggFilter(
+	const parts = [
+		fylkeFilter(filterState.fylkeGeometri),
 		tilfluktsromKapasitetsFilter(filterState.tilfluktsromMinPlasser),
-	);
+	].filter(Boolean);
+
+	const filter = byggFilter(parts);
 
 	map.setFilter(TILFLUKTSROM.LAYER, filter);
 };
