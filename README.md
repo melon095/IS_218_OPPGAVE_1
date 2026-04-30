@@ -15,6 +15,8 @@
     - [1.2 Video](#12-video)
   - [2. Romlig analyse ved hjelp av Jupyter Notebook](#2-romlig-analyse-ved-hjelp-av-jupyter-notebook)
 - [Oppgave 3](#oppgave-3)
+  - [1. Datakatalog](#1-datakatalog)
+  - [2. Video](#2-video)
 
 # Oppgave 1
 
@@ -132,7 +134,7 @@ To av datasettene er nå lagret i Supabase: `befolkning` og `tilfluktsrom`. Diss
 
 I tillegg har vi videreutviklet grensesnittet med bedre struktur, mer universell utforming og mer mobilvennlig layout, slik at funksjonaliteten fra de tidligere oppgavene blir lettere å bruke i praksis.
 
-# 1.1 Datakatalog
+## 1. Datakatalog
 
 | Datasett           | URL                                                                                                               |
 | ------------------ | ----------------------------------------------------------------------------------------------------------------- |
@@ -141,5 +143,5 @@ I tillegg har vi videreutviklet grensesnittet med bedre struktur, mer universell
 | Fylkegrenser       | [Kartverket administrative enheter-API](https://api.kartverket.no/kommuneinfo/v1/)                                |
 
 
-# 1.2 Video
+## 2. Video
 https://github.com/user-attachments/assets/b143cab1-5079-446d-a755-d6798b46292b
