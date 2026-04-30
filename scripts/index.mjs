@@ -127,7 +127,9 @@ const oppdaterTilfluktsromFilter = () => {
 };
 
 const oppdaterBefolkningFilter = () => {
-	const filter = byggFilter(befolkningMinFilter(filterState.befolkningMinPop));
+	const filter = byggFilter([
+        befolkningMinFilter(filterState.befolkningMinPop)
+    ]);
 
 	map.setFilter(BEFOLKNING.LAYER, filter);
 	map.setFilter(BEFOLKNING.LAYER_OUTLINE, filter);
