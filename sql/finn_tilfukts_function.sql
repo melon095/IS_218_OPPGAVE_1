@@ -5,11 +5,14 @@ CREATE OR REPLACE FUNCTION finn_tilfluktsrom(
 )
 RETURNS SETOF tilfluktsrom
 AS $$
-  SELECT *
-  FROM tilfluktsrom
-  WHERE ST_DWithin(
-    posisjon::geography,
-    ST_SetSRID(ST_MakePoint(lng, lat), 4326)::geography,
-    radius
-  );
-$$ LANGUAGE sql;
+BEGIN
+  RETURN QUERY
+    SELECT *
+    FROM tilfluktsrom
+    WHERE ST_DWithin(
+        posisjon::geography,
+        ST_SetSRID(ST_MakePoint(lng, lat), 4326)::geography,
+        radius
+    );
+END
+$$ LANGUAGE plpgsql;

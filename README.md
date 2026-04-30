@@ -10,9 +10,10 @@
   - [5. Arkitektur og dataflyt](#5-arkitektur-og-dataflyt)
   - [6. Refleksjon](#6-refleksjon)
 - [Oppgave 2](#oppgave-2)
-  - [Utvidelse av Webkartet](#utvidelse-av-webkartet)
-    - [Video](#video)
-  - [Romlig analyse ved hjelp av Jupyter Notebook](#romlig-analyse-ved-hjelp-av-jupyter-notebook)
+  - [1. Utvidelse av Webkartet](#1-utvidelse-av-webkartet)
+    - [1.1 Datasett brukt videre i løsningen](#11-datasett-brukt-videre-i-løsningen)
+    - [1.2 Video](#12-video)
+  - [2. Romlig analyse ved hjelp av Jupyter Notebook](#2-romlig-analyse-ved-hjelp-av-jupyter-notebook)
 - [Oppgave 3](#oppgave-3)
 
 # Oppgave 1
@@ -74,8 +75,17 @@ Løsningen håndterer romlig filtrering i frontend, noe som fungerer godt for sm
 
 # Oppgave 2
 
-## Utvidelse av Webkartet
+## 1. Utvidelse av Webkartet
 Utvidelsen i oppgaven lar brukeren velge en posisjon på kartet for å se hvor mange tilfluktsrom som finnes i nærheten. Denne funksjonen er muliggjort av funksjonen `finn_tilfluktsrom`, som bruker PostGIS-funksjoner til å beregne antall rom i SQL-spørringen. Funksjonen kalles fra [sokRadius.mjs](./scripts/sokRadius.mjs), som også sørger for visuell tilbakemelding til brukeren både i menyen og som en markør på kartet. Dersom det er flere tilfluktsrom enn det er plass til i markøren, kan brukeren scrolle gjennom dem. Dette gjør at brukeren slipper å flytte kartet for å se informasjonen.
+
+### 1.1 Datasett brukt videre i løsningen
+| Datasett           | Opprinnelse | Bruk i webkartet                                              |
+| ------------------ | ----------- | ------------------------------------------------------------- |
+| Befolkningstetthet | Oppgave 2   | Flatelag med fargegradering og filtrering på befolkningsverdi |
+| Tilfluktsrom       | Oppgave 2   | Punktlag, popup-informasjon og radiussøk for nærhet           |
+| Fylkegrenser       | Oppgave 1   | Romlig avgrensning i fylkefilter for begge lagene             |
+
+Denne sammensetningen følger skissen vår fra tidligere oppgaver: vi kombinerer administrative grenser, punktdata og flatedata for å gi både oversikt og detaljert analyse i samme kart.
 
 SQL-koden for å finne tilfluktsrom ligger i [./sql/finn_tilfukts_function.sql](./sql/finn_tilfukts_function.sql) og ser slik ut:
 
@@ -99,10 +109,10 @@ $$ LANGUAGE sql;
 
 Det anbefales å sjekke ut taggen `oppgave-2` for å teste denne funksjonaliteten. Du kan også bruke permanent commit-lenke [her](https://github.com/melon095/IS_218_OPPGAVE_1/commit/490359ce1aa0a7946975ba5a7834ab3975d7cd2e) eller [oppgave-2-taggen](https://github.com/melon095/IS_218_OPPGAVE_1/releases/tag/oppgave-2).
 
-### Video
+### 1.2 Video
 https://github.com/user-attachments/assets/b6126059-9991-4c9d-8188-8a5716618e5b
 
-## Romlig analyse ved hjelp av Jupyter Notebook
+## 2. Romlig analyse ved hjelp av Jupyter Notebook
 I tillegg til utvidelsen av webkartet har vi utført en romlig analyse ved hjelp av Jupyter Notebook. Analysen fokuserte på forholdet mellom tilfluktsrom og befolkningstetthet i Norge. Vi brukte data om befolkningstetthet fra Statistisk sentralbyrå (SSB) og data om tilfluktsrom fra Kartverket. Python-biblioteker som GeoPandas og Matplotlib ble brukt til å visualisere resultatene. Analysen viste en tendens til at områder med høy befolkningstetthet har flere tilfluktsrom, men også noen unntak, særlig i mer rurale områder. Dette kan tyde på at plasseringen av tilfluktsrom bør vurderes opp mot befolkningstetthet for å sikre god tilgjengelighet. Videre analyser kan inkludere faktorer som avstand til nærmeste tilfluktsrom og tilgjengelighet for personer med nedsatt mobilitet.
 
 [URL til Jupyter Notebook](./romlig-analyse/romlig-analyse.ipynb)
@@ -116,4 +126,20 @@ Datasettene ble lastet ned som GML-filer og deretter konvertert til GeoParquet v
 
 # Oppgave 3
 
-I oppgave 3 har vi valgt å inkludere befolkningstetthet per kvadratkilometer i Agder fylke. Vi har også forbedret utseendet på nettsiden og gjort den mer universelt utformet og mobilvennlig.
+I oppgave 3 bygger vi videre på løsningene fra oppgave 1 og 2, og samler nå tre datasett i én helhetlig kartapplikasjon: befolkningstetthet, tilfluktsrom og fylkegrenser. Befolkningstetthet og tilfluktsrom visualiseres som egne kartlag, mens fylkegrensene brukes til romlig avgrensning i filteret slik at brukeren kan fokusere analysen på ett fylke om gangen.
+
+To av datasettene er nå lagret i Supabase: `befolkning` og `tilfluktsrom`. Disse hentes i frontend med RPC-kall, i stedet for statiske filer. SQL-funksjonene som eksponerer data ligger i [./sql](./sql): `alle_befolkningsdata()`, `alle_tilfluktsrom()` og `finn_tilfluktsrom(...)`. Dette gir en tydeligere dataflyt mellom database og kartklient, og gjør det enklere å utvide med nye spørringer senere.
+
+I tillegg har vi videreutviklet grensesnittet med bedre struktur, mer universell utforming og mer mobilvennlig layout, slik at funksjonaliteten fra de tidligere oppgavene blir lettere å bruke i praksis.
+
+# 1.1 Datakatalog
+
+| Datasett           | URL                                                                                                               |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| Befolkningstetthet | [GeoNorge](https://kartkatalog.geonorge.no/metadata/tilfluktsrom-offentlige/dbae9aae-10e7-4b75-8d67-7f0e8828f3d8) |
+| Tilfluktsrom       | [GeoNorge](https://kartkatalog.geonorge.no/metadata/tilfluktsrom-offentlige/dbae9aae-10e7-4b75-8d67-7f0e8828f3d8) |
+| Fylkegrenser       | [Kartverket administrative enheter-API](https://api.kartverket.no/kommuneinfo/v1/)                                |
+
+
+# 1.2 Video
+https://github.com/user-attachments/assets/b143cab1-5079-446d-a755-d6798b46292b

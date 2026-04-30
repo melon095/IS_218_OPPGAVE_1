@@ -127,12 +127,7 @@ const oppdaterTilfluktsromFilter = () => {
 };
 
 const oppdaterBefolkningFilter = () => {
-	const parts = [
-		fylkeFilter(filterState.fylkeGeometri),
-		befolkningMinFilter(filterState.befolkningMinPop),
-	].filter(Boolean);
-
-	const filter = byggFilter(parts);
+	const filter = byggFilter(befolkningMinFilter(filterState.befolkningMinPop));
 
 	map.setFilter(BEFOLKNING.LAYER, filter);
 	map.setFilter(BEFOLKNING.LAYER_OUTLINE, filter);
@@ -313,6 +308,9 @@ map.on("load", async () => {
 		lastInnBefolkning(map),
 		lastInnTilfluktsrom(map),
 	]);
+
+	map.moveLayer(BEFOLKNING.LAYER, TILFLUKTSROM.LAYER);
+	map.moveLayer(BEFOLKNING.LAYER_OUTLINE, TILFLUKTSROM.LAYER);
 
 	installBefolkningEventer(map);
 	installTilfluktsromEventer(map);

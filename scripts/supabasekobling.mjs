@@ -1,18 +1,17 @@
-const suppebaseUrl = "https://deobegwgsvlzqzpidpqq.supabase.co";
-const suppebaseKey =
-	"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRlb2JlZ3dnc3ZsenF6cGlkcHFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzMDUzMTYsImV4cCI6MjA4Mzg4MTMxNn0.1m9ZUGROVeLy9vKZdMyY9iUVdHv39H8xtvkqgp3zQKQ";
+export const SUPABASE = {
+	API_KEY: "sb_publishable__M6fyGnAyEymqPV0JAj9TA_pvdG3Tx8",
+	BASE_URL: "https://deobegwgsvlzqzpidpqq.supabase.co",
+	SCHEMA: "public",
+	TABLE: "tilfluktsrom",
+};
 
-export const supabase = window.supabase.createClient(
-	suppebaseUrl,
-	suppebaseKey,
+export const client = window.supabase.createClient(
+	SUPABASE.BASE_URL,
+	SUPABASE.API_KEY,
 );
 
-export const hentTilfluktsromRadius = async (lng, lat, radius) => {
-	const { data, error } = await supabase.rpc("finn_tilfluktsrom", {
-		lng,
-		lat,
-		radius,
-	});
+const behaviour = async (func, args = {}) => {
+	const { data, error } = await client.rpc(func, args);
 
 	if (error) {
 		console.error(error);
@@ -21,3 +20,34 @@ export const hentTilfluktsromRadius = async (lng, lat, radius) => {
 
 	return data;
 };
+
+export const hentTilfluktsromRadius = async (lng, lat, radius) =>
+	await behaviour("finn_tilfluktsrom", { lng, lat, radius });
+
+export const hentTilfluktsromData = async () =>
+	await behaviour("alle_tilfluktsrom");
+
+export const hentBefolkingsData = async () =>
+	await behaviour("alle_befolkningsdata");
+
+export const konverterResponseTilGeoJSON = (response = [], filterFn) => ({
+	type: "FeatureCollection",
+	features: response.map(filterFn),
+});
+// 	return { type: "FeatureCollection", features };
+// response.map((data) => ({
+// 	type: feature,
+// }));
+
+//     {
+
+// 		const features = raw.map((plass) => {
+// 			const { posisjon, romnr, plasser, adresse } = plass;
+
+// 			return {
+// 				type: "Feature",
+// 				geometry: { type: "Point", coordinates: posisjon.coordinates },
+// 				properties: { romnr, plasser, adresse },
+// 			};
+// 		});
+// };
