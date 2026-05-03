@@ -82,15 +82,6 @@ Løsningen håndterer romlig filtrering i frontend, noe som fungerer godt for sm
 ## 1. Utvidelse av Webkartet
 Utvidelsen i oppgaven lar brukeren velge en posisjon på kartet for å se hvor mange tilfluktsrom som finnes i nærheten. Denne funksjonen er muliggjort av funksjonen `finn_tilfluktsrom`, som bruker PostGIS-funksjoner til å beregne antall rom i SQL-spørringen. Funksjonen kalles fra [sokRadius.mjs](./scripts/sokRadius.mjs), som også sørger for visuell tilbakemelding til brukeren både i menyen og som en markør på kartet. Dersom det er flere tilfluktsrom enn det er plass til i markøren, kan brukeren scrolle gjennom dem. Dette gjør at brukeren slipper å flytte kartet for å se informasjonen.
 
-### 1.1 Datasett brukt videre i løsningen
-| Datasett           | Opprinnelse | Bruk i webkartet                                              |
-| ------------------ | ----------- | ------------------------------------------------------------- |
-| Befolkningstetthet | Oppgave 2   | Flatelag med fargegradering og filtrering på befolkningsverdi |
-| Tilfluktsrom       | Oppgave 2   | Punktlag, popup-informasjon og radiussøk for nærhet           |
-| Fylkegrenser       | Oppgave 1   | Romlig avgrensning i fylkefilter for begge lagene             |
-
-Denne sammensetningen følger skissen vår fra tidligere oppgaver: vi kombinerer administrative grenser, punktdata og flatedata for å gi både oversikt og detaljert analyse i samme kart.
-
 SQL-koden for å finne tilfluktsrom ligger i [./sql/finn_tilfukts_function.sql](./sql/finn_tilfukts_function.sql) og ser slik ut:
 
 ```sql
