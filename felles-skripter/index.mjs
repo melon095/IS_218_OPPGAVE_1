@@ -1,3 +1,8 @@
+export * from "./befolkning.mjs";
+export * from "./brannstasjoner.mjs";
+export * from "./sokRadius.mjs";
+export * from "./tilfluktsrom.mjs";
+
 export const map = new maplibregl.Map({
 	container: "map",
 	style: {

@@ -1,23 +1,18 @@
 import {
 	BRANNSTASJON,
-	brannstasjonStasjonstypeFilter,
-	installBrannstasjonEventer,
-	lastInnBrannstasjoner,
-} from "../../felles-skripter/brannstasjoner.mjs";
-import {
 	beregnBoks,
+	brannstasjonStasjonstypeFilter,
 	byggFilter,
 	fylkeFilter,
 	hentFylker,
-	map,
-} from "../../felles-skripter/index.mjs";
-import { installRadiusSok } from "../../felles-skripter/sokRadius.mjs";
-import {
+	installBrannstasjonEventer,
 	installTilfluktsromEventer,
+	lastInnBrannstasjoner,
 	lastInnTilfluktsrom,
+	map,
 	TILFLUKTSROM,
 	tilfluktsromKapasitetsFilter,
-} from "../../felles-skripter/tilfluktsrom.mjs";
+} from "../felles-skripter/index.mjs";
 
 const filterState = {
 	fylkeNavn: "",
@@ -136,11 +131,16 @@ const meny = (fylkeGeometrier) => {
 		oppdaterTilfluktsromFilter();
 	};
 
+	const setPressedState = (button, isVisible) => {
+		button.setAttribute("aria-pressed", String(isVisible));
+	};
+
 	const toggleLayer = (layerId, button, visLabel, skjulLabel) => {
 		const vis = map.getLayoutProperty(layerId, "visibility");
 		const nyVisibility = vis === "visible" ? "none" : "visible";
 
 		map.setLayoutProperty(layerId, "visibility", nyVisibility);
+		setPressedState(button, nyVisibility === "visible");
 		button.textContent = nyVisibility === "visible" ? skjulLabel : visLabel;
 	};
 
@@ -163,9 +163,11 @@ const meny = (fylkeGeometrier) => {
 	const onToggleSound = () => {
 		if (audio.paused) {
 			audio.play();
+			setPressedState($toggleSoundBtn, true);
 			$toggleSoundBtn.textContent = "Skru av lyd (M)";
 		} else {
 			audio.pause();
+			setPressedState($toggleSoundBtn, false);
 			$toggleSoundBtn.textContent = "Skru på lyd (M)";
 		}
 	};
@@ -195,7 +197,6 @@ map.on("load", async () => {
 
 	installBrannstasjonEventer(map);
 	installTilfluktsromEventer(map);
-	installRadiusSok(map);
 
 	meny(fylkeGeometrier);
 });
