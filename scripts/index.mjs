@@ -3,14 +3,14 @@ import {
 	befolkningMinFilter,
 	installBefolkningEventer,
 	lastInnBefolkning,
-} from "./befolkning.mjs";
-import { installRadiusSok } from "./sokRadius.mjs";
+} from "../felles-skripter/befolkning.mjs";
 import {
 	installTilfluktsromEventer,
 	lastInnTilfluktsrom,
 	TILFLUKTSROM,
 	tilfluktsromKapasitetsFilter,
-} from "./tilfluktsrom.mjs";
+} from "../felles-skripter/tilfluktsrom.mjs";
+import { installRadiusSok } from "./sokRadius.mjs";
 
 const map = new maplibregl.Map({
 	container: "map",
@@ -128,8 +128,8 @@ const oppdaterTilfluktsromFilter = () => {
 
 const oppdaterBefolkningFilter = () => {
 	const filter = byggFilter([
-        befolkningMinFilter(filterState.befolkningMinPop)
-    ]);
+		befolkningMinFilter(filterState.befolkningMinPop),
+	]);
 
 	map.setFilter(BEFOLKNING.LAYER, filter);
 	map.setFilter(BEFOLKNING.LAYER_OUTLINE, filter);

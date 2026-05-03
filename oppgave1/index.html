@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IS-218 | Gruppe 6</title>
+    <link href="https://unpkg.com/maplibre-gl@^5.16.0/dist/maplibre-gl.css" rel="stylesheet" />
+    <link rel="stylesheet" href="../styles/index.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <a class="skip-link" href="#map">Hopp til kartet</a>
+    <div class="glass-card" id="layout">
+        <aside id="menu" aria-label="Kartkontroller">
+
+            <section id="layer-control" aria-labelledby="layer-control-title">
+                <h2 id="layer-control-title">Kartlag</h2>
+                <button id="toggle-brannstasjoner" type="button" name="layer" aria-pressed="true" aria-keyshortcuts="P">Skjul Brannstasjoner (B)</button>
+                <button id="toggle-tilfluktsrom" type="button" name="layer" aria-pressed="true" aria-keyshortcuts="T">Skjul Tilfluktsrom (T)</button>
+                <button id="toggle-sound" type="button" name="sound" aria-pressed="true" aria-keyshortcuts="M">Skru av lyd (M)</button>
+                <audio id="bird-sounds" src="../lyder/birdsounds.mp3" loop autoplay aria-hidden="true"></audio>
+            </section>
+
+            <section id="romlig-filter" aria-labelledby="romlig-filter-title">
+                <h2 id="romlig-filter-title">Romlig filtrering</h2>
+                <label for="fylke-filter">Velg fylke</label>
+                <select id="fylke-filter">
+                    <option value="">Alle fylker</option>
+                </select>
+                <button id="reset-fylke" type="button">Tilbakestill fylke</button>
+            </section>
+
+            <section id="brannstasjon-section" aria-labelledby="brannstasjon-title">
+                <h2 id="brannstasjon-title">Brannstasjoner</h2>
+                <label for="stasjonstype-filter">Stasjonstype</label>
+                <select id="stasjonstype-filter">
+                    <option value="">Alle typer</option>
+                    <option value="H">Hovedstasjon (H)</option>
+                    <option value="L">Lokal / underordnet (L)</option>
+                </select>
+                <button id="reset-brann-filter" type="button">Tilbakestill type</button>
+            </section>
+
+            <section id="tilfluktsrom-section" aria-labelledby="tilfluktsrom-title">
+                <h2 id="tilfluktsrom-title">Tilfluktsrom</h2>
+                <label for="min-plasser">Minimum antall plasser</label>
+                <input  id="min-plasser" type="number" min="0" step="50" placeholder="f.eks. 200" />
+                <button id="reset-tifl-filter" type="button">Tilbakestill kapasitet</button>
+            </section>
+        </aside>
+
+        <main id="map" role="region" aria-label="Interaktivt kart over Norge" aria-busy="true" tabindex="0"></main>
+    </div>
+
+    <script src="https://unpkg.com/maplibre-gl@^5.16.0/dist/maplibre-gl.js"></script>
+    <script src="./scripts/index.mjs" type="module"></script>
+</body>
+</html>

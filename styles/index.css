@@ -167,7 +167,8 @@ input[type="number"]:focus-visible,
 #tilfluktsrom-prox,
 #romlig-filter,
 #tilfluktsrom-section,
-#befolkning-section {
+#befolkning-section,
+#brannstasjon-section {
 	display: flex;
 	flex-direction: column;
 	gap: 0.5rem;
@@ -286,7 +287,8 @@ input[type="number"]:focus-visible {
 	#tilfluktsrom-prox,
 	#romlig-filter,
 	#tilfluktsrom-section,
-	#befolkning-section {
+	#befolkning-section,
+	#brannstasjon-section {
 		padding: 0.75rem;
 	}
 }
