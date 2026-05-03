@@ -11,6 +11,7 @@ import {
 	hentFylker,
 	map,
 } from "../../felles-skripter/index.mjs";
+import { installRadiusSok } from "../../felles-skripter/sokRadius.mjs";
 import {
 	installTilfluktsromEventer,
 	lastInnTilfluktsrom,
@@ -194,6 +195,7 @@ map.on("load", async () => {
 
 	installBrannstasjonEventer(map);
 	installTilfluktsromEventer(map);
+	installRadiusSok(map);
 
 	meny(fylkeGeometrier);
 });
