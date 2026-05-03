@@ -1,4 +1,7 @@
-import { hentTilfluktsromRadius } from "./supabasekobling.mjs";
+import {
+	hentTilfluktsromRadius,
+	konverterResponseTilGeoJSON,
+} from "./supabasekobling.mjs";
 
 export const installRadiusSok = (map) => {
 	const MIN_RADIUS_M = 100;
@@ -40,6 +43,13 @@ export const installRadiusSok = (map) => {
 		return { gyldig: true, radius: Math.round(parsed) };
 	};
 
+	const oppdaterRadiusTekst = (radius) => {
+		const radiusValue = document.getElementById("radius-value");
+		if (radiusValue) {
+			radiusValue.textContent = formatRadius(radius);
+		}
+	};
+
 	const clearObjects = () => {
 		if (map.getLayer("radius-resultat-layer")) {
 			map.removeLayer("radius-resultat-layer");
@@ -62,7 +72,7 @@ export const installRadiusSok = (map) => {
 		}
 
 		const proxResultat = document.getElementById("tilflukts-prox-resultat");
-		proxResultat.innerHTML = `<p>Trykk på kartet for å finne tilfluktsrom innen ${formatRadius(DEFAULT_RADIUS_M)}</p>`;
+		proxResultat.innerHTML = `<p>Trykk på kartet for å finne tilfluktsrom innen valgt radius</p>`;
 	};
 
 	map.on("click", async (pos) => {
@@ -80,6 +90,7 @@ export const installRadiusSok = (map) => {
 
 		radiusInput.setCustomValidity("");
 		radiusInput.value = String(radiusValidering.radius);
+		oppdaterRadiusTekst(radiusValidering.radius);
 
 		const radius = radiusValidering.radius;
 		const radiusText = formatRadius(radius);
@@ -138,16 +149,15 @@ export const installRadiusSok = (map) => {
 			});
 		}
 
-		proxResultat.innerHTML = `<p><strong>Søker etter tilfluktsrom innen ${radiusText}...</strong></p>`;
 		const tilfluktsData = await hentTilfluktsromRadius(lng, lat, radius);
 
 		if (!tilfluktsData || tilfluktsData.length === 0) {
 			proxResultat.innerHTML = `
-                <strong>Ingen tilfluktsrom innen ${radiusText}</strong>
+                <strong>Ingen tilfluktsrom innen valgt radius</strong>
             `;
 			activePopup = new maplibregl.Popup()
 				.setLngLat([lng, lat])
-				.setHTML(`<strong>Ingen tilfluktsrom innen ${radiusText}</strong>`)
+				.setHTML(`<strong>Ingen tilfluktsrom innen valgt radius</strong>`)
 				.addTo(map);
 
 			activePopup.on("close", () => {
@@ -163,7 +173,7 @@ export const installRadiusSok = (map) => {
 			return;
 		}
 
-		const features = tilfluktsData.map((rad) => ({
+		const collection = konverterResponseTilGeoJSON(tilfluktsData, (rad) => ({
 			type: "Feature",
 			geometry: {
 				type: "Point",
@@ -177,17 +187,11 @@ export const installRadiusSok = (map) => {
 		}));
 
 		if (map.getSource("radius-resultat-source")) {
-			map.getSource("radius-resultat-source").setData({
-				type: "FeatureCollection",
-				features,
-			});
+			map.getSource("radius-resultat-source").setData(collection);
 		} else {
 			map.addSource("radius-resultat-source", {
 				type: "geojson",
-				data: {
-					type: "FeatureCollection",
-					features,
-				},
+				data: collection,
 			});
 
 			map.addLayer({
@@ -224,7 +228,7 @@ export const installRadiusSok = (map) => {
 			.setLngLat([lng, lat])
 			.setHTML(
 				`<div class="scroll-popup">
-                <strong>${features.length} tilfluktsrom innen ${radiusText}</strong>
+                <strong>${collection.features.length} tilfluktsrom innen valgt radius</strong>
                     <ul>
                         ${tilfluktsData
 													.map(
@@ -262,11 +266,13 @@ export const installRadiusSok = (map) => {
 			radiusInput.setCustomValidity("");
 		}
 
-		document.getElementById("radius-value").textContent = formatRadius(
-			radiusInput.value || DEFAULT_RADIUS_M,
+		const valgtRadius = Number(radiusInput.value);
+		oppdaterRadiusTekst(
+			Number.isFinite(valgtRadius) ? valgtRadius : DEFAULT_RADIUS_M,
 		);
 	};
 
+	oppdaterRadiusTekst(Number(radiusInput.value) || DEFAULT_RADIUS_M);
 	radiusInput.addEventListener("input", radiusValueUpdate);
 	radiusInput.addEventListener("change", radiusValueUpdate);
 };
