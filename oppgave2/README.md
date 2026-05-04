@@ -31,7 +31,7 @@ $$ LANGUAGE sql;
 Det anbefales å sjekke ut taggen `oppgave-2` for å teste denne funksjonaliteten. Du kan også bruke permanent commit-lenke [her](https://github.com/melon095/IS_218_OPPGAVE_1/commit/490359ce1aa0a7946975ba5a7834ab3975d7cd2e) eller [oppgave-2-taggen](https://github.com/melon095/IS_218_OPPGAVE_1/releases/tag/oppgave-2).
 
 ### 1.2 Video
-https://github.com/user-attachments/assets/b6126059-9991-4c9d-8188-8a5716618e5b
+https://github.com/user-attachments/assets/67349eb6-83f5-42d8-83f6-d4addbe363ba
 
 ## 2. Romlig analyse ved hjelp av Jupyter Notebook
 I tillegg til utvidelsen av webkartet har vi utført en romlig analyse ved hjelp av Jupyter Notebook. Analysen fokuserte på forholdet mellom tilfluktsrom og befolkningstetthet i Norge. Vi brukte data om befolkningstetthet fra Statistisk sentralbyrå (SSB) og data om tilfluktsrom fra Kartverket. Python-biblioteker som GeoPandas og Matplotlib ble brukt til å visualisere resultatene. Analysen viste en tendens til at områder med høy befolkningstetthet har flere tilfluktsrom, men også noen unntak, særlig i mer rurale områder. Dette kan tyde på at plasseringen av tilfluktsrom bør vurderes opp mot befolkningstetthet for å sikre god tilgjengelighet. Videre analyser kan inkludere faktorer som avstand til nærmeste tilfluktsrom og tilgjengelighet for personer med nedsatt mobilitet.
