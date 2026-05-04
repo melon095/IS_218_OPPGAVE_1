@@ -20,4 +20,4 @@ I tillegg har vi videreutviklet grensesnittet med bedre struktur, mer universell
 
 
 ## 2. Video
-https://github.com/user-attachments/assets/b143cab1-5079-446d-a755-d6798b46292b
+https://github.com/user-attachments/assets/a75fa0f6-2f19-4d09-9efd-be14a000ca12
