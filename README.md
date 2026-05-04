@@ -20,3 +20,5 @@ python3 -m http.server
 ```
 
 Det anbefales å bytte ut `python3` med `py` for Windows-brukere. Når serveren kjører, kan du åpne nettleseren og navigere til `http://localhost:8000/` for å se prosjektet i aksjon. Hver oppgave har sin egen mappe med en `README.md` som beskriver hva som er gjort, datakilder og en video-demo av funksjonaliteten.
+
+For å se oppgave 1, naviger til `http://localhost:8000/oppgave1/`, for oppgave 2 til `http://localhost:8000/oppgave2/`, og for oppgave 3 til `http://localhost:8000/oppgave3/`. Rotmappen inneholder også en `index.html` som gir deg en hyperlenke til hver oppgave. Obs. Ikke åpne `index.html` direkte i nettleseren uten en server. 
