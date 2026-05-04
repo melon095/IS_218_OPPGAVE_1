@@ -1,4 +1,4 @@
-import * as supabase from "./supabasekobling.mjs";
+import * as supabase from "./supabasekobling.js";
 
 export const BEFOLKNING = {
 	SOURCE: "befolkning_source",

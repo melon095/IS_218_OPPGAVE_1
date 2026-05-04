@@ -12,7 +12,7 @@ import {
 	lastInnTilfluktsrom,
 	TILFLUKTSROM,
 	tilfluktsromKapasitetsFilter,
-} from "../felles-skripter/index.mjs";
+} from "../felles-skripter/index.js";
 
 const filterState = {
 	fylkeNavn: "",

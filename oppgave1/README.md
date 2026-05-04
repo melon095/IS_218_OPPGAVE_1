@@ -13,10 +13,8 @@
 ## 1. Hva kartet løser
 Kartløsningen visualiserer to datasett over hele Norge: **offentlige tilfluktsrom** og **brannstasjoner**. Brukeren kan filtrere innholdet romlig per fylke (basert på offisielle grenser fra Kartverket), i tillegg til attributtbaserte filtre for hvert datasett. Interaktive kontroller lar brukeren skru lag av og på, og klikk på punkter viser detaljert informasjon i popup-vinduer.
 
-Koden for oppgave 1 er ikke inkludert i denne commiten. For å teste oppgave 1 må du klone repoet og sjekke ut taggen `oppgave-1`. Du kan også se oppgaven via permanent commit-lenke [her](https://github.com/melon095/IS_218_OPPGAVE_1/commit/23f48d576cb8af12307d668cc73fba6a712c3c48) eller via [oppgave-1-taggen](https://github.com/melon095/IS_218_OPPGAVE_1/releases/tag/oppgave-1).
-
 ## 2. Demo av system
-https://github.com/user-attachments/assets/f6a73c03-efca-43c6-a7b2-e22edfeae587
+https://github.com/user-attachments/assets/6afadc21-ae81-42bb-9ab8-c038c29b765c
 
 ## 3. Teknisk stack
 | Komponent        | Teknologi            | Versjon                                       |
