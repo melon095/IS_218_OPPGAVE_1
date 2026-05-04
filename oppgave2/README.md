@@ -6,7 +6,7 @@
 # Oppgave 2
 
 ## 1. Utvidelse av Webkartet
-Utvidelsen i oppgaven lar brukeren velge en posisjon på kartet for å se hvor mange tilfluktsrom som finnes i nærheten. Denne funksjonen er muliggjort av funksjonen `finn_tilfluktsrom`, som bruker PostGIS-funksjoner til å beregne antall rom i SQL-spørringen. Funksjonen kalles fra [sokRadius.mjs](./scripts/sokRadius.mjs), som også sørger for visuell tilbakemelding til brukeren både i menyen og som en markør på kartet. Dersom det er flere tilfluktsrom enn det er plass til i markøren, kan brukeren scrolle gjennom dem. Dette gjør at brukeren slipper å flytte kartet for å se informasjonen.
+Utvidelsen i oppgaven lar brukeren velge en posisjon på kartet for å se hvor mange tilfluktsrom som finnes i nærheten. Denne funksjonen er muliggjort av funksjonen `finn_tilfluktsrom`, som bruker PostGIS-funksjoner til å beregne antall rom i SQL-spørringen. Funksjonen kalles fra [sokRadius.js](./scripts/sokRadius.js), som også sørger for visuell tilbakemelding til brukeren både i menyen og som en markør på kartet. Dersom det er flere tilfluktsrom enn det er plass til i markøren, kan brukeren scrolle gjennom dem. Dette gjør at brukeren slipper å flytte kartet for å se informasjonen.
 
 SQL-koden for å finne tilfluktsrom ligger i [./sql/finn_tilfukts_function.sql](./sql/finn_tilfukts_function.sql) og ser slik ut:
 
