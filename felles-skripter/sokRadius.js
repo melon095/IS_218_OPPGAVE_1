@@ -1,7 +1,7 @@
 import {
 	hentTilfluktsromRadius,
 	konverterResponseTilGeoJSON,
-} from "./supabasekobling.mjs";
+} from "./supabasekobling.js";
 
 export const installRadiusSok = (map) => {
 	const MIN_RADIUS_M = 100;
